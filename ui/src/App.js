@@ -1,24 +1,31 @@
-import logo from './logo.svg';
 import './App.css';
+import MenuBar from './pages/MenuBar';
+import MainContent from './pages/MainContent';
+import styled from 'styled-components'
+import { useState } from 'react';
+import Login from './pages/Login';
+
+
+const DashboardContainer = styled.div`
+  display:flex;
+  flex-direction:row;
+  min-height:100vh;
+
+  @media only screen and (max-width:586px)  {
+    flex-direction:column;
+  }
+`;
 
 function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+
+  if(!isLoggedIn) return <Login isLoggedIn={ isLoggedIn } setIsLoggedIn={ isLoggedIn } />
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <DashboardContainer>
+      <MenuBar />
+      <MainContent />
+    </DashboardContainer>
   );
 }
 
