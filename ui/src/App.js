@@ -1,31 +1,38 @@
 import './App.css';
-import MenuBar from './pages/MenuBar';
-import MainContent from './pages/MainContent';
-import styled from 'styled-components'
-import { useState } from 'react';
-import Login from './pages/Login';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import Login from './pages/Auth/Login';
+import SignUp from './pages/Auth/Signup';
+import Dashboard from './pages/dashboard/index';
+import { AuthProvider, useAuth } from './context/AuthContext.js';
 
-
-const DashboardContainer = styled.div`
-  display:flex;
-  flex-direction:row;
-  min-height:100vh;
-
-  @media only screen and (max-width:586px)  {
-    flex-direction:column;
-  }
-`;
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
 
-  if(!isLoggedIn) return <Login isLoggedIn={ isLoggedIn } setIsLoggedIn={ isLoggedIn } />
+  const Auth = ({ children }) => {
+    const { user } = useAuth();
+    console.log(user)
+    return user ? children : <Navigate to="/login" />
+  };
 
   return (
-    <DashboardContainer>
-      <MenuBar />
-      <MainContent />
-    </DashboardContainer>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+
+          <Route path="/"
+            element={
+              <Auth>
+                <Dashboard />
+              </Auth>
+            } />
+          <Route path="/login" element={ <Login /> } />
+          <Route path="/signup" element={ <SignUp /> } />
+          <Route path="*" element={ <Navigate to="/" /> } />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
+
+
   );
 }
 

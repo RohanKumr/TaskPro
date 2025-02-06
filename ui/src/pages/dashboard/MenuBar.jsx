@@ -1,7 +1,8 @@
 import React from 'react'
 import styled from 'styled-components'
-import { COLOR } from '../utils/colors';
-
+import { COLOR } from '../../utils/colors';
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 const MenuContainer = styled.div`
   background:${COLOR.PRIMARY};
@@ -28,11 +29,22 @@ const MenuItem = styled.h3`
   margin:10px auto;
   border-radius:4px;
 `;
+
 const AuthButton = styled.div`
+`;
+
+const LogoutButton = styled.div`
 
 `;
 
 export default function MenuBar() {
+  const navigate = useNavigate()
+  const { logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  }
   return (
     <MenuContainer>
       <div>
@@ -49,7 +61,9 @@ export default function MenuBar() {
       </div>
 
       <AuthButton>
-        Logout
+        <LogoutButton onClick={ () => handleLogout() }>
+          Logout
+        </LogoutButton>
       </AuthButton>
     </MenuContainer>
   )
