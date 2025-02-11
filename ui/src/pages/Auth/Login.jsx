@@ -89,6 +89,7 @@ export default function Login() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setErrors({})
     console.log("handling Submit");
 
     console.log({ form });
