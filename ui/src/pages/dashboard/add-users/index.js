@@ -1,12 +1,12 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components';
-import { FormError, FormInput, FormLabel } from '../../components/form';
-import { ROLES } from '../../utils/enums'
-import { Heading } from '../../components/common/heading';
-import { COLOR } from '../../utils/colors';
-import { Button } from '../../components/common/button';
-import { useAuth } from '../../context/AuthContext';
-import { Link, useNavigate } from 'react-router-dom';
+import { FormError, FormInput, FormLabel } from '../../../components/form';
+import { ROLES } from '../../../utils/enums'
+import { Heading } from '../../../components/common/heading';
+import { COLOR } from '../../../utils/colors';
+import { Button } from '../../../components/common/button';
+import { useAuth } from '../../../context/AuthContext';
+import { Navigate, Link, useNavigate } from 'react-router-dom';
 
 const LoginContainer = styled.div`
 display:flex;
@@ -14,7 +14,7 @@ flex-direction:column;
 justify-content:center;
 align-items:center;
 min-height:100vh;
-background:${COLOR.PRIMARY};
+
 `;
 
 const Roles = styled.div`
@@ -42,19 +42,19 @@ const LoginForm = styled.form`
   flex-direction: column;
   gap:8px;
   margin:30px 0;
-  padding:40px 13px;
   width:100%;
   max-width:350px;
-  background:${COLOR.BACKGROUND};
+  border:1px solid ${COLOR.PRIMARY};
+  padding:16px;
   border-radius:8px;
-  box-shadow:0 0 21px 0px ${COLOR.PRIMARY};
-  `;
+`;
 
-export default function Login() {
+export default function AddUsers() {
   const [form, setForm] = useState({
     role: 'employee',
     email: '',
     password: '',
+    confirmPassword: ''
   })
 
   const [errors, setErrors] = useState({});
@@ -71,35 +71,38 @@ export default function Login() {
   }
 
   console.log(form);
-  console.log(errors);
-
+  console.log(errors)
 
   const validate = () => {
     let errorMessages = {};
-    const { role, email, password } = form;
+    const { role, email, password, confirmPassword } = form;
 
     if(!role) errorMessages.role = "Role is required";
     if(!email) errorMessages.email = "Email is required";
     if(!password) errorMessages.password = "Password is required";
+    if(!confirmPassword) errorMessages.confirmPassword = "Confirm Password is required";
+    if(password !== confirmPassword) errorMessages.confirmPassword = "Passwords do not match";
 
-    setErrors(errorMessages);
+    setErrors(errorMessages)
 
     return Object.keys(errorMessages).length === 0;
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("handling Submit");
 
-    console.log({ form });
-    if(!validate()) return;
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    validate();
+    console.log(errors);
+    console.log("validating");
     login(form);
-    navigate("/");
+    // navigate("/login");
   }
+
+  useEffect(() => { }, [errors])
 
   return (
     <LoginContainer>
-      <Heading color={ COLOR.WHITE } margin="24px"  >Login</Heading>
+      <h1>Add Users</h1>
       <LoginForm >
         <Roles>
           <Role
@@ -112,7 +115,7 @@ export default function Login() {
         </Roles>
         <FormError>{ errors?.role }</FormError>
 
-        <FormLabel >Username</FormLabel>
+        <FormLabel >Email</FormLabel>
         <FormError>{ errors?.email }</FormError>
         <FormInput
           name="email"
@@ -121,7 +124,7 @@ export default function Login() {
           value={ form.email }
           autoComplete='username'
         />
-        <FormLabel >Password</FormLabel>
+        <FormLabel>Password</FormLabel>
         <FormError>{ errors?.password }</FormError>
         <FormInput
           name="password"
@@ -129,9 +132,17 @@ export default function Login() {
           onChange={ onChangeHandler }
           autoComplete='new-password'
           value={ form.password } />
-        <Button onClick={ handleSubmit } >Login</Button>
+        <FormLabel>Confirm Password</FormLabel>
+        <FormError>{ errors?.confirmPassword }</FormError>
+        <FormInput
+          name="confirmPassword"
+          type="confirmPassword"
+          onChange={ onChangeHandler }
+          value={ form.confirmPassword } />
+        <Button onClick={ handleSubmit } >Add User</Button>
       </LoginForm>
-      <Link to='/signup' style={ { color: COLOR.WHITE } } >Don't have an account? Sing up here!</Link>
+
+      {/* <Link to='/login'>Already have an account? Login Here!</Link> */ }
     </LoginContainer>
   )
 }

@@ -1,8 +1,10 @@
 import React from 'react'
 import styled from 'styled-components'
 import { COLOR } from '../../utils/colors';
-import { useNavigate } from "react-router-dom";
+import { capitalise } from '../../utils/helper';
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+
 
 const MenuContainer = styled.div`
   background:${COLOR.PRIMARY};
@@ -28,6 +30,7 @@ const MenuItem = styled.h3`
   padding:6px 10px;
   margin:10px auto;
   border-radius:4px;
+  cursor:pointer;
 `;
 
 const AuthButton = styled.div`
@@ -39,17 +42,55 @@ const LogoutButton = styled.div`
 
 export default function MenuBar() {
   const navigate = useNavigate()
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
 
   const handleLogout = () => {
     logout();
     navigate("/login");
   }
+
+  const roleBasedMenu = {
+    admin: [
+      {
+        to: '/admin/add-users',
+        name: 'Add User'
+      },
+      {
+        to: '/admin/view-users',
+        name: 'View Users'
+      },
+      {
+        to: '/admin/assign-tasks',
+        name: 'Assign Tasks'
+      },
+    ],
+    employee: [
+      {
+        to: '/Tasks',
+        name: 'Tasks'
+      },
+      {
+        to: '/my-profile',
+        name: 'My Profile'
+      },
+    ]
+  }
+
+
+  console.log(roleBasedMenu);
+
+
   return (
     <MenuContainer>
       <div>
+        <p>{ capitalise(user?.role) }</p>
         <h1>TaskPro</h1>
-        <MenuItem >
+
+        {
+          roleBasedMenu[user?.role]?.map((menu) => <Link to={ menu.to }><MenuItem > { menu.name } </MenuItem></Link>)
+        }
+
+        {/* <MenuItem >
           Menu Item 1
         </MenuItem>
         <MenuItem >
@@ -57,7 +98,7 @@ export default function MenuBar() {
         </MenuItem>
         <MenuItem >
           Menu Item 3
-        </MenuItem>
+        </MenuItem> */}
       </div>
 
       <AuthButton>
