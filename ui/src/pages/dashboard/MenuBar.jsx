@@ -4,6 +4,7 @@ import { COLOR } from '../../utils/colors';
 import { capitalise } from '../../utils/helper';
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import TaskProLogo from "../../images/logo3.jpg";
 
 
 const MenuContainer = styled.div`
@@ -39,6 +40,13 @@ const AuthButton = styled.div`
 const LogoutButton = styled.div`
 
 `;
+const LogoStyle = styled.img`
+width:208px;
+height:209px;
+object-fit:cover;
+margin-top:-70px;
+position:relative;
+`
 
 export default function MenuBar() {
   const navigate = useNavigate()
@@ -83,8 +91,13 @@ export default function MenuBar() {
   return (
     <MenuContainer>
       <div>
-        <p>{ capitalise(user?.role) }</p>
-        <h1>TaskPro</h1>
+        <p style={ {
+          position: "relative",
+          zIndex: 1
+        } } >{ capitalise(user?.role) }</p>
+        {/* <h1>TaskPro</h1> */ }
+
+        <LogoStyle src={ TaskProLogo } alt="TaskPro Logo" />
 
         {
           roleBasedMenu[user?.role]?.map((menu) => <Link to={ menu.to }><MenuItem > { menu.name } </MenuItem></Link>)

@@ -7,6 +7,7 @@ import { COLOR } from '../../utils/colors';
 import { Button } from '../../components/common/button';
 import { useAuth } from '../../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
+import TaskProLogo from '../../images/logo3.jpg';
 
 const LoginContainer = styled.div`
 display:flex;
@@ -48,6 +49,11 @@ const LoginForm = styled.form`
   background:${COLOR.BACKGROUND};
   border-radius:8px;
   box-shadow:0 0 21px 0px ${COLOR.PRIMARY};
+  `;
+
+const LogoStyle = styled.img`
+    width:300px;
+    height:auto;
   `;
 
 export default function Login() {
@@ -100,7 +106,10 @@ export default function Login() {
 
   return (
     <LoginContainer>
-      <Heading color={ COLOR.WHITE } margin="24px"  >Login</Heading>
+
+      <LogoStyle src={ TaskProLogo } alt="TaskPro Logo" />
+
+      {/* <Heading color={ COLOR.WHITE } margin="24px"  >Login</Heading> */ }
       <LoginForm >
         <Roles>
           <Role
@@ -132,7 +141,7 @@ export default function Login() {
           value={ form.password } />
         <Button onClick={ handleSubmit } >Login</Button>
       </LoginForm>
-      <Link to='/signup' style={ { color: COLOR.WHITE } } >Don't have an account? Sing up here!</Link>
+      {/* <Link to='/signup' style={ { color: COLOR.WHITE } } >Don't have an account? Sing up here!</Link> */ }
     </LoginContainer>
   )
 }
