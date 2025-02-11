@@ -1,6 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import { COLOR } from '../../utils/colors.js';
+import { Outlet } from 'react-router-dom';
 
 const MainContainer = styled.div`
   width:100%;
@@ -15,7 +16,8 @@ const MainContainer = styled.div`
 export default function MainContent() {
   return (
     <MainContainer >
-      <div>Content</div>
+      {/* <h1>Outlet here</h1> */ }
+      <Outlet />
     </MainContainer>
   )
 }
