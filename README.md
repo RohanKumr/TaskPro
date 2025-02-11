@@ -16,3 +16,15 @@ Task pro will provide features like:
 7.	Search and Filter
 - Search tasks by title, description, or category.
 - Filter by status, due date, or assigned user.
+
+### Database
+create database TaskManagementSystemDB;
+
+use TaskManagementSystemDB;
+
+show tables;
+
+insert into user_table (name, gender, department, email, password, contact, role) values ("name", "gender", "department", "email", "password", "contact_number", "role");
+
+
+select * from user_table;
