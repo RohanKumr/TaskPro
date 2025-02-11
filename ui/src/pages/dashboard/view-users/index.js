@@ -4,16 +4,25 @@ import { COLOR } from '../../../utils/colors';
 
 
 const Table = styled.table`
-border-radius:8px;
+  border-radius:8px;
+  width: 100%;
+  border:1px solid transparent;
+  
   th, tr, td {
     padding:16px;
     text-align:center;
+  }
+  
+  td, th {
+    border-radius:8px;
+    background:white;
   }
   th {
     background:${COLOR.PRIMARY};
     color:${COLOR.WHITE}
 
   }
+
 `;
 
 export default function ViewUsers() {
@@ -34,8 +43,8 @@ export default function ViewUsers() {
   return (
     <>
       <h1>All Users</h1>
-      <div style={ { padding: "20px" } }>
-        <Table border="1" style={ { width: "100%", borderCollapse: "collapse" } }>
+      <div style={ { padding: "20px", overflow: "scroll" } }>
+        <Table border="1">
           <thead>
             <tr>
               <th>ID</th>
@@ -48,7 +57,7 @@ export default function ViewUsers() {
               <th>Role</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody >
             { allUsers?.length !== 0 && allUsers?.map((user) => (
               <tr key={ user.id }>
                 <td>{ user.id }</td>
