@@ -44,7 +44,7 @@ const LoginForm = styled.form`
   margin:30px 0;
   width:100%;
   max-width:350px;
-  border:1px solid ${COLOR.PRIMARY};
+  /* border:1px solid ${COLOR.PRIMARY}; */
   padding:16px;
   border-radius:8px;
 `;
