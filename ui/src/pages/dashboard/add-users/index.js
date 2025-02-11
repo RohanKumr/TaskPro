@@ -88,13 +88,36 @@ export default function AddUsers() {
     return Object.keys(errorMessages).length === 0;
   };
 
+  const addUser = async (form) => {
+    /** @Params
+     * gender
+     * name
+     * department
+     * email
+     * password
+     * contact
+     */
+
+    // api adduser
+    await fetch("http://localhost:8080/adduser", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(form),
+    }).then(res => res.json())
+      .then(data => console.log(data));
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    validate();
-    console.log(errors);
-    console.log("validating");
-    login(form);
+    // validate();
+    // console.log(errors);
+    // console.log("validating");
+    // login(form);
+
+    console.log(form);
+    addUser(form);
     // navigate("/login");
   }
 
@@ -124,6 +147,36 @@ export default function AddUsers() {
           value={ form.email }
           autoComplete='username'
         />
+        <FormLabel >Name</FormLabel>
+        <FormError>{ errors?.name }</FormError>
+        <FormInput
+          name="name"
+          type="text"
+          onChange={ onChangeHandler }
+          value={ form.name }
+          autoComplete='name'
+        />
+
+        <FormLabel >Department</FormLabel>
+        <FormError>{ errors?.department }</FormError>
+        <FormInput
+          name="department"
+          type="text"
+          onChange={ onChangeHandler }
+          value={ form.department }
+          autoComplete='name'
+        />
+
+        <FormLabel >Contact</FormLabel>
+        <FormError>{ errors?.contact }</FormError>
+        <FormInput
+          name="contact"
+          type="text"
+          onChange={ onChangeHandler }
+          value={ form.contact }
+          autoComplete='contact'
+        />
+
         <FormLabel>Password</FormLabel>
         <FormError>{ errors?.password }</FormError>
         <FormInput
