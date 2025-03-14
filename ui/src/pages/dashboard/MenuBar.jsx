@@ -16,8 +16,7 @@ const MenuContainer = styled.div`
   display:flex;
   flex-direction:column;
   justify-content:space-between;
-  position: fixed;
-  height:100%;
+  
   h1 {
     margin:0;
   };

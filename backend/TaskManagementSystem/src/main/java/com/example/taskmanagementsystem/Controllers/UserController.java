@@ -63,19 +63,19 @@ public class UserController {
 	}
 	
 	@GetMapping("gettasksassignedby/{id}")
-	public List<Task> gettasksassignedby(@PathVariable int id)
+	public List<Task> gettasksassignedby(@PathVariable("id") int id)
 	{
 		return userService.getTasksAssignedBy(id);
 	}
      
 	@GetMapping("gettasksassignedto/{id}")
-	public List<Task> gettasksassignedto(@PathVariable int id)
+	public List<Task> gettasksassignedto(@PathVariable("id") int id)
 	{
 		return userService.getTasksAssignedTo(id);
 	}
      
 	@DeleteMapping("deletetask/{id}")
-	public String deletetask(@PathVariable Long id)
+	public String deletetask(@PathVariable("id") Long id)
 	{
 		return userService.deleteTask(id);
 	}
