@@ -24,7 +24,33 @@ use TaskManagementSystemDB;
 
 show tables;
 
+###### User table
 insert into user_table (name, gender, department, email, password, contact, role) values ("name", "gender", "department", "email", "password", "contact_number", "role");
 
-
 select * from user_table;
+
+###### Task task_table
+
+select * from task_table;
+
+INSERT INTO task_table (category, subcategory, name, description, priority, startDate, endDate, assignedTo, assignedBy, remarks, progress, status, taskAssignedTime)
+
+VALUES ('Development', 'Frontend', 'Implement Login Page', 'Design and implement the login page for the application', 'High', '2025-03-14', '2025-03-20', 1, 101, 'Initial task setup', 20.0, 'In Progress', CURRENT_TIMESTAMP);
+ 
+INSERT INTO task_table (category, subcategory, name, description, priority, startDate, endDate, assignedTo, assignedBy, remarks, progress, status, taskAssignedTime)
+
+VALUES ('Development', 'Backend', 'Create API for User Management', 'Develop RESTful API for user CRUD operations', 'Medium', '2025-03-15', '2025-03-25', 2, 102, 'API structure defined', 40.0, 'In Progress', CURRENT_TIMESTAMP);
+ 
+INSERT INTO task_table (category, subcategory, name, description, priority, startDate, endDate, assignedTo, assignedBy, remarks, progress, status, taskAssignedTime)
+
+VALUES ('Testing', 'Unit Test', 'Test User Registration API', 'Write unit tests for the user registration API', 'Low', '2025-03-16', '2025-03-22', 3, 103, 'Tests written and ready to execute', 50.0, 'Pending', CURRENT_TIMESTAMP);
+ 
+INSERT INTO task_table (category, subcategory, name, description, priority, startDate, endDate, assignedTo, assignedBy, remarks, progress, status, taskAssignedTime)
+
+VALUES ('Design', 'UI/UX', 'Redesign Dashboard', 'Create a modern and responsive dashboard design for users', 'High', '2025-03-17', '2025-03-24', 4, 104, 'Mockups created', 60.0, 'In Progress', CURRENT_TIMESTAMP);
+ 
+INSERT INTO task_table (category, subcategory, name, description, priority, startDate, endDate, assignedTo, assignedBy, remarks, progress, status, taskAssignedTime)
+
+VALUES ('Development', 'Mobile', 'Develop Mobile App for Android', 'Develop an Android version of the app with basic features', 'High', '2025-03-18', '2025-03-30', 5, 105, 'Initial setup completed', 10.0, 'Pending', CURRENT_TIMESTAMP);
+
+ 
