@@ -24,12 +24,33 @@ use TaskManagementSystemDB;
 
 show tables;
 
-###### User table
-insert into user_table (name, gender, department, email, password, contact, role) values ("name", "gender", "department", "email", "password", "contact_number", "role");
+###### USER TABLE
 
 select * from user_table;
 
-###### Task task_table
+INSERT INTO user_table (name, gender, department, email, password, contact, role)
+
+VALUES ('John Doe', 'Male', 'IT', 'john.doe@example.com', 'password123', '9876543210', 'Tester');
+ 
+INSERT INTO user_table (name, gender, department, email, password, contact, role)
+
+VALUES ('Jane Smith', 'Female', 'HR', 'jane.smith@example.com', 'password456', '9123456789', 'Manager');
+ 
+INSERT INTO user_table (name, gender, department, email, password, contact, role)
+
+VALUES ('Alice Johnson', 'Female', 'Marketing', 'alice.johnson@example.com', 'password789', '9876123456', 'Employee');
+ 
+INSERT INTO user_table (name, gender, department, email, password, contact, role)
+
+VALUES ('Bob Brown', 'Male', 'Finance', 'bob.brown@example.com', 'password101', '9876987654', 'Manager');
+ 
+INSERT INTO user_table (name, gender, department, email, password, contact, role)
+
+VALUES ('Charlie Lee', 'Male', 'Sales', 'charlie.lee@example.com', 'password202', '9123981234', 'Employee');
+
+ 
+
+###### TASK TABLE
 
 select * from task_table;
 
