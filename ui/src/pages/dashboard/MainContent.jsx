@@ -6,6 +6,7 @@ import { Outlet } from 'react-router-dom';
 const MainContainer = styled.div`
   width:100%;
   padding:20px;
+  overflow:scroll;
   background: ${COLOR.BACKGROUND};
 
   @media only screen and (max-width:586px)  {

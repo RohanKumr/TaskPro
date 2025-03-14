@@ -16,12 +16,15 @@ const MenuContainer = styled.div`
   display:flex;
   flex-direction:column;
   justify-content:space-between;
+  position: fixed;
+  height:100%;
   h1 {
     margin:0;
   };
 
   @media only screen and (max-width:586px)  {
     width:100%;
+    position:static;
   }
 `;
 
@@ -67,19 +70,28 @@ export default function MenuBar() {
         to: '/admin/view-users',
         name: 'View Users'
       },
+
       {
-        to: '/admin/assign-tasks',
-        name: 'Assign Tasks'
+        to: '/admin/add-tasks',
+        name: 'Add Tasks'
+      },
+      {
+        to: '/admin/tasks',
+        name: 'Tasks'
       },
     ],
     employee: [
       {
-        to: '/Tasks',
+        to: '/tasks',
         name: 'Tasks'
       },
       {
         to: '/my-profile',
         name: 'My Profile'
+      },
+      {
+        to: '/add-tasks',
+        name: 'Add Tasks'
       },
     ]
   }

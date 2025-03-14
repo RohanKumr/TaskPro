@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components';
-import { FormError, FormInput, FormLabel } from '../../../components/form';
+import { FormError, FormInput, FormLabel, FormOption, FormSelect } from '../../../components/form';
 import { ROLES } from '../../../utils/enums'
 import { Heading } from '../../../components/common/heading';
 import { COLOR } from '../../../utils/colors';
 import { Button } from '../../../components/common/button';
 import { useAuth } from '../../../context/AuthContext';
 import { Navigate, Link, useNavigate } from 'react-router-dom';
+import { backend_endpoint } from '../../../utils/apis';
 
 const LoginContainer = styled.div`
 display:flex;
@@ -54,7 +55,8 @@ export default function AddUsers() {
     role: 'employee',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    gender: ''
   })
 
   const [errors, setErrors] = useState({});
@@ -75,11 +77,12 @@ export default function AddUsers() {
 
   const validate = () => {
     let errorMessages = {};
-    const { role, email, password, confirmPassword } = form;
+    const { role, email, password, confirmPassword, gender } = form;
 
     if(!role) errorMessages.role = "Role is required";
     if(!email) errorMessages.email = "Email is required";
     if(!password) errorMessages.password = "Password is required";
+    if(!gender) errorMessages.gender = "Gender is required";
     if(!confirmPassword) errorMessages.confirmPassword = "Confirm Password is required";
     if(password !== confirmPassword) errorMessages.confirmPassword = "Passwords do not match";
 
@@ -98,15 +101,20 @@ export default function AddUsers() {
      * contact
      */
 
+
+
     // api adduser
-    await fetch("http://localhost:8080/adduser", {
+    await fetch(`${backend_endpoint}/adduser`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(form),
     }).then(res => res.json())
-      .then(data => console.log(data));
+      .then(data => {
+        alert("User Added!");
+        console.log(data)
+      });
   }
 
   const handleSubmit = async (e) => {
@@ -156,6 +164,16 @@ export default function AddUsers() {
           value={ form.name }
           autoComplete='name'
         />
+
+        <FormLabel >Gender</FormLabel>
+        <FormError>{ errors?.gender }</FormError>
+
+        <FormSelect name="gender" value={ form.gender } onChange={ onChangeHandler } >
+          <FormOption value="male">Male</FormOption>
+          <FormOption value="female">Female</FormOption>
+        </FormSelect>
+
+
 
         <FormLabel >Department</FormLabel>
         <FormError>{ errors?.department }</FormError>
