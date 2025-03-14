@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components';
 import { COLOR } from '../../../utils/colors';
+import { backend_endpoint } from '../../../utils/apis';
 
 
 const Table = styled.table`
@@ -31,7 +32,7 @@ export default function ViewUsers() {
 
 
 
-    fetch('http://localhost:8080/viewallusers')
+    fetch(`${backend_endpoint}/viewallusers`)
       .then(res => res.json()).then(data => {
 
         setAllUsers(data);

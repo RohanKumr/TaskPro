@@ -1,5 +1,9 @@
 package com.example.taskmanagementsystem.Models;
 
+import java.sql.Blob;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -22,7 +26,16 @@ public class User {
 	  private String password;
 	  @Column(unique = true,nullable = false)
 	  private String contact;
-	  private String role;
+	  @JsonIgnore
+	  private Blob userimage;
+
+	  public Blob getUserimage() {
+		return userimage;
+	}
+	public void setUserimage(Blob userimage) {
+		this.userimage = userimage;
+	}
+	private String role;
 	public int getId() {
 		return id;
 	}
