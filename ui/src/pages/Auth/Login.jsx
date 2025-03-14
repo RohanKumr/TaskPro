@@ -102,7 +102,8 @@ export default function Login() {
     console.log({ form });
     if(!validate()) return;
     login(form);
-    navigate("/");
+    if(form?.role === 'admin') navigate("/admin/tasks");
+    if(form?.role === 'employee') navigate("/tasks");
   }
 
   return (
