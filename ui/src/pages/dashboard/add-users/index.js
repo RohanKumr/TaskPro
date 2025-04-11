@@ -8,6 +8,7 @@ import { Button } from '../../../components/common/button';
 import { useAuth } from '../../../context/AuthContext';
 import { Navigate, Link, useNavigate } from 'react-router-dom';
 import { backend_endpoint } from '../../../utils/apis';
+import { toastError, toastSuccess } from '../../../utils/toast';
 
 const LoginContainer = styled.div`
 display:flex;
@@ -100,21 +101,27 @@ export default function AddUsers() {
      * password
      * contact
      */
+    try {
 
+      const res = await fetch(`${backend_endpoint}/adduser`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(form),
+      })
 
+      const result = await res.text();
 
-    // api adduser
-    await fetch(`${backend_endpoint}/adduser`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(form),
-    }).then(res => res.json())
-      .then(data => {
-        alert("User Added!");
-        console.log(data)
-      });
+      if(res.ok) {
+        toastSuccess(result || "User Added!")
+        navigate("/admin/view-users");
+      } else {
+        toastError(result);
+      }
+    } catch {
+      toastError('Something went wrong!')
+    }
   }
 
   const handleSubmit = async (e) => {

@@ -78,18 +78,22 @@ export default function MenuBar() {
         to: '/admin/tasks',
         name: 'Tasks'
       },
+      {
+        to: '/admin/profile',
+        name: 'My Profile'
+      },
     ],
     employee: [
       {
-        to: '/tasks',
+        to: 'employee/tasks',
         name: 'Tasks'
       },
       {
-        to: '/my-profile',
+        to: 'employee/profile',
         name: 'My Profile'
       },
       {
-        to: '/add-tasks',
+        to: 'employee/add-tasks',
         name: 'Add Tasks'
       },
     ]
@@ -111,7 +115,10 @@ export default function MenuBar() {
         <LogoStyle src={ TaskProLogo } alt="TaskPro Logo" />
 
         {
-          roleBasedMenu[user?.role]?.map((menu) => <Link to={ menu.to }><MenuItem > { menu.name } </MenuItem></Link>)
+          roleBasedMenu[user?.role]
+            ?.map((menu) => <Link to={ menu.to }>
+              <MenuItem > { menu.name } </MenuItem>
+            </Link>)
         }
 
         {/* <MenuItem >

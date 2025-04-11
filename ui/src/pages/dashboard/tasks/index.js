@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { COLOR } from '../../../utils/colors';
 import { backend_endpoint } from '../../../utils/apis';
 import { useAuth } from '../../../context/AuthContext';
+import { formatDate } from '../../../utils/helper';
 
 
 const Table = styled.table`
@@ -16,7 +17,7 @@ const Table = styled.table`
   }
   
   td, th {
-    border-radius:8px;
+    border-radius:2px;
     background:white;
   }
   th {
@@ -54,14 +55,15 @@ export default function Tasks() {
               <th>Category</th>
               <th>Subcategory</th>
               <th>Task Name</th>
-              <th>Description</th>
+              {/* <th>Description</th> */ }
               <th>Priority</th>
-              <th>Start Date</th>
-              <th>End Date</th>
-              <th>Assigned To</th>
+              {/* <th>Start Date</th> */ }
+              {/* <th>End Date</th> */ }
+              {/* <th>Assigned To</th> */ }
+              {/* <th>Assigned By</th> */ }
               <th>Status</th>
-              <th>Progress</th>
-              <th>Remarks</th>
+              {/* <th>Progress</th> */ }
+              {/* <th>Remarks</th> */ }
             </tr>
           </thead>
           <tbody>
@@ -72,14 +74,15 @@ export default function Tasks() {
                   <td>{ task.category }</td>
                   <td>{ task.subcategory }</td>
                   <td>{ task.name }</td>
-                  <td>{ task.description }</td>
+                  {/* <td>{ task.description }</td> */ }
                   <td>{ task.priority }</td>
-                  <td>{ task.startDate }</td>
-                  <td>{ task.endDate }</td>
-                  <td>{ task.assignedTo }</td>
+                  {/* <td>{ formatDate(task.startDate) }</td> */ }
+                  {/* <td>{ formatDate(task.endDate) }</td> */ }
+                  {/* <td>{ task.assignedTo }</td> */ }
+                  {/* <td>{ task.assignedBy }</td> */ }
                   <td>{ task.status }</td>
-                  <td>{ task.progress }</td>
-                  <td>{ task.remarks }</td>
+                  {/* <td>{ task.progress }</td> */ }
+                  {/* <td>{ task.remarks }</td> */ }
                 </tr>
               )) }
           </tbody>
