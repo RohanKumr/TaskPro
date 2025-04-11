@@ -1,10 +1,17 @@
 package com.example.taskmanagementsystem.Controllers;
 
+import java.io.IOException;
+import java.sql.Blob;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -19,8 +26,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.taskmanagementsystem.DTO.TaskProgressDTO;
+import com.example.taskmanagementsystem.DTO.TaskReviewUpdateDTO;
 import com.example.taskmanagementsystem.Models.SelfTask;
 import com.example.taskmanagementsystem.Models.Task;
+import com.example.taskmanagementsystem.Models.TaskProgress;
 import com.example.taskmanagementsystem.Models.User;
 import com.example.taskmanagementsystem.Repository.UserRepository;
 import com.example.taskmanagementsystem.Services.UserService;
@@ -75,7 +85,7 @@ public class UserController {
 	}
      
 	@DeleteMapping("deletetask/{id}")
-	public String deletetask(@PathVariable("id") Long id)
+	public String deletetask(@PathVariable("id") long id)
 	{
 		return userService.deleteTask(id);
 	}
@@ -83,7 +93,7 @@ public class UserController {
 	
 
 	@GetMapping("getuserbyid/{id}")
-	public User getuserbyid(@PathVariable Long id)
+	public User getuserbyid(@PathVariable("id") long id)
 	{
 		return userService.getUserById(id);
 	}
@@ -92,6 +102,119 @@ public class UserController {
     {
     	return userService.updateUser(user);
     }
+	
+	
+	
+	@PostMapping("/updatetaskprogress")
+    public ResponseEntity<String> updateTaskProgress(@RequestParam ("taskid") Long taskid,
+            @RequestParam ("progress")double progress,
+            @RequestParam ("remarks") String remarks,
+            @RequestParam (value= "progressfile",required=false)MultipartFile progressfile,
+            @RequestParam ("updatedBy")int updatedBy) 
+	{
+
+		try {
+	        TaskProgress taskProgress = new TaskProgress();
+	        taskProgress.setTaskid(taskid);
+	        taskProgress.setProgress(progress);
+	        taskProgress.setRemarks1(remarks);
+	        taskProgress.setUpdatedBy(updatedBy);
+	        taskProgress.setReviewstatus("SUBMITTED FOR REVIEW");
+
+	        // Only process file if provided
+	        if (progressfile != null && !progressfile.isEmpty()) {
+	            Blob progressBlob = createBlobFromMultipartFile(progressfile);
+	            taskProgress.setProgressfile(progressBlob);
+	        }
+
+	        userService.updateTaskProgress(taskProgress);
+	        return ResponseEntity.ok("Task progress updated successfully");
+	    } catch (IOException | SQLException e) {
+	        return ResponseEntity.status(500).body("Failed: " + e.getMessage());
+	    }
+    }
+
+    private Blob createBlobFromMultipartFile(MultipartFile file) throws IOException, SQLException 
+    {
+        byte[] fileBytes = file.getBytes();
+        return new javax.sql.rowset.serial.SerialBlob(fileBytes);
+    }
+
+    @GetMapping("myreviewtaskprogress/{id}")
+    public List<TaskProgressDTO> myreviewtaskprogress(@PathVariable ("id") Long id) {
+        List<TaskProgress> taskProgressList = userService.myreviewtaskprogress(id);
+
+        return taskProgressList.stream().map(taskProgress -> {
+            TaskProgressDTO dto = new TaskProgressDTO();
+            dto.setId(taskProgress.getId());
+            dto.setTaskid(taskProgress.getTaskid());
+            dto.setProgress(taskProgress.getProgress());
+            dto.setRemarks(taskProgress.getRemarks1());
+            dto.setReviewstatus(taskProgress.getReviewstatus());
+            dto.setProgressUpdatedTime(taskProgress.getProgressUpdatedTime().toString());
+            dto.setHasFile(taskProgress.getProgressfile() != null); // Add a flag for file presence
+            return dto;
+        }).collect(Collectors.toList());
+    }
+
+    
+    @GetMapping("downloadprogressfile/{id}")
+    public ResponseEntity<?> downloadProgressFile(@PathVariable ("id") Long id) {
+        Optional<TaskProgress> optionalTaskProgress = userService.getTaskProgessById(id);
+        
+        if (optionalTaskProgress.isPresent()) {
+            TaskProgress taskProgress = optionalTaskProgress.get();
+            
+            if (taskProgress.getProgressfile() != null) {
+                try {
+                    byte[] pdfBytes = taskProgress.getProgressfile().getBytes(1, (int) taskProgress.getProgressfile().length());
+                    
+                    return ResponseEntity.ok()
+                            .contentType(MediaType.APPLICATION_PDF)
+                            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=Task_" + id + "_Progress.pdf")
+                            .body(pdfBytes);
+                } catch (Exception e) {
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error reading file.");
+                }
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("File not found for task ID: " + id);
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Task progress not found for ID: " + id);
+        }
+    }
+    
+    @PutMapping("updatetask")
+    public ResponseEntity<String> updatetask(@RequestBody TaskReviewUpdateDTO request) 
+    {
+        Long taskid = request.getTaskid();
+        Long progressid = request.getProgressid();
+        Double progress = request.getProgress();
+        String remarks = request.getRemarks();
+        
+        System.out.println(taskid);
+
+        if (progress == null) {
+            return ResponseEntity.badRequest().body("Progress value is required.");
+        }
+
+        // Update the task based on progress
+        if (progress == 100) 
+        {
+            userService.updateTask(taskid, progress, "COMPLETED");
+        } 
+        else 
+        {
+            userService.updateTask(taskid, progress, "IN PROGRESS");
+        }
+
+        // Update review status regardless of progress value
+        userService.updateReviewStatus(progressid, remarks);
+
+        return ResponseEntity.ok("Task has been reviewed successfully");
+    }
+    
+
     
     
     @PutMapping("/updateuserimage/{id}")
@@ -135,7 +258,7 @@ public class UserController {
 	
 	
 	@PostMapping("forgotpassword/{email}")
-	public ResponseEntity<String> forgotpassword(@PathVariable String email) {
+	public ResponseEntity<String> forgotpassword(@PathVariable("email") String email) {
 	    try {
 	        // Check if the user exists in the database
 	        User user = userRepository.findByEmail(email); // Replace with your repository logic

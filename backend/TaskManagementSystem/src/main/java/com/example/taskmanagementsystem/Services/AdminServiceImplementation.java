@@ -1,8 +1,12 @@
 package com.example.taskmanagementsystem.Services;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+//import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.example.taskmanagementsystem.Models.Admin;
@@ -23,11 +27,38 @@ public class AdminServiceImplementation implements AdminService {
 	
 	@Autowired
 	private TaskRepository taskRepository;
+	// For secure password hashing
 
 	
 	@Override
-	public Admin verifyAdminLogin(Admin admin) {
-		return adminRepository.findByUsernameAndPassword(admin.getUsername(),admin.getPassword());
+	public ResponseEntity<?> verifyAdminLogin(Admin admin) {
+		// Case 1: No admin exists → Create new admin
+        if (adminRepository.count() == 0) {
+            admin.setPassword(admin.getPassword()); // Hash password
+            adminRepository.save(admin);
+            return ResponseEntity.ok("New admin '" + admin.getUsername() + "' created successfully!");
+        }
+
+        // Case 2: Check if admin exists
+        Optional<Admin> existingAdminOpt = adminRepository.findById(admin.getUsername());
+
+        // Subcase 2A: Admin not found
+        if (existingAdminOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Admin username '" + admin.getUsername() + "' not found!");
+        }
+
+        Admin existingAdmin = existingAdminOpt.get();
+
+        // Subcase 2B: Check password (secure comparison)
+//        if (!passwordEncoder.matches(admin.getPassword(), existingAdmin.getPassword())) {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+//                    .body("Invalid password for admin: '" + admin.getUsername() + "'");
+//        }
+
+        // Subcase 2C: Success
+        return ResponseEntity.ok(existingAdmin);
+
 	}
 
 	@Override

@@ -36,16 +36,8 @@ public class AdminController {
 
 	@PostMapping("/verifyadminlogin")
 	public ResponseEntity<?> verifyAdminLogin(@RequestBody Admin admin) {
-	    Admin authenticatedUser = adminService.verifyAdminLogin(admin);
-	    if (authenticatedUser == null) {
-	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Login Failed");
-	    }
-	    return ResponseEntity.ok(authenticatedUser);
+		return adminService.verifyAdminLogin(admin);
 	}
-
-
-	
-	
 	@PostMapping("adduser")
 	public ResponseEntity<String> addUser(@RequestBody User user) throws MessagingException{
 		// Check if the email already exists
@@ -111,7 +103,7 @@ public class AdminController {
 	
 	// deleting the particular user by providing the user id
 	@DeleteMapping("deleteuser/{id}")
-	public String deleteuser(@PathVariable int id)
+	public String deleteuser(@PathVariable("id") int id)
 	{
 		return adminService.deleteUser(id);
 	}

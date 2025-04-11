@@ -10,8 +10,10 @@ import org.springframework.stereotype.Service;
 
 import com.example.taskmanagementsystem.Models.SelfTask;
 import com.example.taskmanagementsystem.Models.Task;
+import com.example.taskmanagementsystem.Models.TaskProgress;
 import com.example.taskmanagementsystem.Models.User;
 import com.example.taskmanagementsystem.Repository.SelfTaskRepository;
+import com.example.taskmanagementsystem.Repository.TaskProgressRepository;
 import com.example.taskmanagementsystem.Repository.TaskRepository;
 import com.example.taskmanagementsystem.Repository.UserRepository;
 
@@ -26,6 +28,8 @@ public class UserServiceImpl implements UserService{
      
 	 @Autowired
 	   private SelfTaskRepository selfTaskRepository;
+	 @Autowired
+	  private TaskProgressRepository taskProgressRepository;
 
 
 
@@ -100,8 +104,19 @@ public class UserServiceImpl implements UserService{
 	@Override
 	public String addTask(Task task) 
 	{
+		 // Check if assignedBy user exists
+	    if (!userRepository.existsById(task.getAssignedBy())) {
+	        return "Cannot add task: User with ID '" + task.getAssignedBy() + "' (assignedBy) does not exist";
+	    }
+	    // Check if assignedTo user exists
+	    if (!userRepository.existsById(task.getAssignedTo())) {
+	        return "Cannot add task: User with ID '" + task.getAssignedTo() + "' (assignedTo) does not exist";
+	    }
+	    
+	    // Both users exist, proceed to save
 	    taskRepository.save(task);
 	    return "Task Assigned Successfully";
+		
 	}
 	
 	@Override
@@ -135,6 +150,41 @@ public class UserServiceImpl implements UserService{
 	    taskRepository.save(t);
 		
 	}
+	
+	
+	
+	@Override
+	public String updateTaskProgress(TaskProgress taskProgress) 
+	{
+		taskProgressRepository.save(taskProgress);
+		return "Task Progress Updated Successfully";
+	}
+	
+	@Override
+	public List<TaskProgress> myreviewtaskprogress(Long id) 
+	{
+		return taskProgressRepository.findByTaskid(id);
+	}
+
+	@Override
+	public Optional<TaskProgress> getTaskProgessById(Long id) 
+	{
+		return taskProgressRepository.findById(id);
+	}
+
+	@Override
+	public void updateReviewStatus(Long id,String remarks) 
+	{
+        Optional<TaskProgress> obj = taskProgressRepository.findById(id);
+		
+		TaskProgress tp = obj.get();
+		tp.setReviewstatus("REVIEWED");
+		tp.setRemarks2(remarks);
+		
+		taskProgressRepository.save(tp);
+	}
+
+
 
 	@Override
 	public String addSelfTask(SelfTask selfTask) {
