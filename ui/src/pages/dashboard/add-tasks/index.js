@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components';
-import { FormError, FormInput, FormLabel, FormSelect, FormOption } from '../../../components/form';
+import { FormGroup, FormError, FormInput, FormLabel, FormSelect, FormOption } from '../../../components/form';
 import { Button } from '../../../components/common/button';
 import { useNavigate } from 'react-router-dom';
 import { backend_endpoint } from '../../../utils/apis';
@@ -16,17 +16,34 @@ const TaskContainer = styled.div`
 
 const TaskForm = styled.form`
   display: flex;
-  flex-direction: column;
   gap: 8px;
   margin: 30px 0;
   width: 100%;
-  max-width: 350px;
   padding: 16px;
   border-radius: 8px;
-`;
+  /* max-width: 350px; */
+  max-width:100%;
+  /* flex-direction: column; */
+  flex-wrap:wrap;
+  gap: 40px;
+  > div {
+    width:100%;
+    max-width:40%;
+  }
+  &:last-child {
+    width:auto;
+  }
+
+  @media only screen and (max-width:786px) {
+    gap:16px;
+    >div {
+      max-width:100%;
+    }
+  }
+  `;
+
 
 export default function AddTask() {
-
   const { user } = useAuth();
 
   const [form, setForm] = useState({
@@ -121,95 +138,131 @@ export default function AddTask() {
     <TaskContainer>
       <h1>Add Task</h1>
       <TaskForm onSubmit={ handleSubmit }>
-        <FormLabel>Category</FormLabel>
-        <FormError>{ errors?.category }</FormError>
-        <FormInput
-          name="category"
-          type="text"
-          onChange={ onChangeHandler }
-          value={ form.category }
-          autoComplete="category"
-        />
+        <FormGroup>
+          <FormLabel>Category</FormLabel>
+          <FormError>{ errors?.category }</FormError>
+          <FormInput
+            name="category"
+            type="text"
+            onChange={ onChangeHandler }
+            value={ form.category }
+            autoComplete="category"
+          />
+        </FormGroup>
 
-        <FormLabel>Subcategory</FormLabel>
-        <FormError>{ errors?.subcategory }</FormError>
-        <FormInput
-          name="subcategory"
-          type="text"
-          onChange={ onChangeHandler }
-          value={ form.subcategory }
-          autoComplete="subcategory"
-        />
+        <FormGroup>
+          <FormLabel>Subcategory</FormLabel>
+          <FormError>{ errors?.subcategory }</FormError>
+          <FormInput
+            name="subcategory"
+            type="text"
+            onChange={ onChangeHandler }
+            value={ form.subcategory }
+            autoComplete="subcategory"
+          />
+        </FormGroup>
 
-        <FormLabel>Task Name</FormLabel>
-        <FormError>{ errors?.name }</FormError>
-        <FormInput
-          name="name"
-          type="text"
-          onChange={ onChangeHandler }
-          value={ form.name }
-          autoComplete="name"
-        />
+        <FormGroup>
+          <FormLabel>Task Name</FormLabel>
+          <FormError>{ errors?.name }</FormError>
+          <FormInput
+            name="name"
+            type="text"
+            onChange={ onChangeHandler }
+            value={ form.name }
+            autoComplete="name"
+          />
+        </FormGroup>
 
-        <FormLabel>Description</FormLabel>
-        <FormError>{ errors?.description }</FormError>
-        <FormInput
-          name="description"
-          type="text"
-          onChange={ onChangeHandler }
-          value={ form.description }
-          autoComplete="description"
-        />
+        <FormGroup>
+          <FormLabel>Description</FormLabel>
+          <FormError>{ errors?.description }</FormError>
+          <FormInput
+            name="description"
+            type="text"
+            onChange={ onChangeHandler }
+            value={ form.description }
+            autoComplete="description"
+          />
+        </FormGroup>
 
-        <FormLabel>Priority</FormLabel>
-        <FormError>{ errors?.priority }</FormError>
-        <FormSelect name="priority" value={ form.priority } onChange={ onChangeHandler }>
-          <FormOption value="Low">Low</FormOption>
-          <FormOption value="Medium">Medium</FormOption>
-          <FormOption value="High">High</FormOption>
-        </FormSelect>
+        <FormGroup>
+          <FormLabel>Priority</FormLabel>
+          <FormError>{ errors?.priority }</FormError>
+          <FormSelect
+            name="priority"
+            value={ form.priority }
+            onChange={ onChangeHandler }
+          >
+            <FormOption value="Low">Low</FormOption>
+            <FormOption value="Medium">Medium</FormOption>
+            <FormOption value="High">High</FormOption>
+          </FormSelect>
+        </FormGroup>
 
-        <FormLabel>Start Date</FormLabel>
-        <FormError>{ errors?.startDate }</FormError>
-        <FormInput
-          name="startDate"
-          type="date"
-          onChange={ onChangeHandler }
-          value={ form.startDate }
-        />
+        <FormGroup>
+          <FormLabel>Start Date</FormLabel>
+          <FormError>{ errors?.startDate }</FormError>
+          <FormInput
+            name="startDate"
+            type="date"
+            onChange={ onChangeHandler }
+            value={ form.startDate }
+          />
+        </FormGroup>
 
-        <FormLabel>End Date</FormLabel>
-        <FormError>{ errors?.endDate }</FormError>
-        <FormInput
-          name="endDate"
-          type="date"
-          onChange={ onChangeHandler }
-          value={ form.endDate }
-        />
+        <FormGroup>
+          <FormLabel>End Date</FormLabel>
+          <FormError>{ errors?.endDate }</FormError>
+          <FormInput
+            name="endDate"
+            type="date"
+            onChange={ onChangeHandler }
+            value={ form.endDate }
+          />
+        </FormGroup>
 
-        <FormLabel>Assigned To</FormLabel>
-        <FormError>{ errors?.assignedTo }</FormError>
-        <FormSelect name="assignedTo" value={ form.assignedTo } onChange={ onChangeHandler } >
-          { allUsers?.map(userInfo => <FormOption value={ userInfo?.id }>{ userInfo?.name }</FormOption>) }
-        </FormSelect>
+        <FormGroup>
+          <FormLabel>Assigned To</FormLabel>
+          <FormError>{ errors?.assignedTo }</FormError>
+          <FormSelect
+            name="assignedTo"
+            value={ form.assignedTo }
+            onChange={ onChangeHandler }
+          >
+            { allUsers?.map((userInfo) => (
+              <FormOption key={ userInfo.id } value={ userInfo.id }>
+                { userInfo.name }
+              </FormOption>
+            )) }
+          </FormSelect>
+        </FormGroup>
 
-        <FormLabel>Remarks</FormLabel>
-        <FormInput
-          name="remarks"
-          type="text"
-          onChange={ onChangeHandler }
-          value={ form.remarks }
-          autoComplete="remarks"
-        />
+        <FormGroup>
+          <FormLabel>Remarks</FormLabel>
+          <FormInput
+            name="remarks"
+            type="text"
+            onChange={ onChangeHandler }
+            value={ form.remarks }
+            autoComplete="remarks"
+          />
+        </FormGroup>
 
-        <FormLabel>Status</FormLabel>
-        <FormSelect name="status" value={ form.status } onChange={ onChangeHandler }>
-          <FormOption value="In Progress">In Progress</FormOption>
-          <FormOption value="Completed">Completed</FormOption>
-          <FormOption value="Pending">Pending</FormOption>
-        </FormSelect>
+        <FormGroup>
+          <FormLabel>Status</FormLabel>
+          <FormSelect
+            name="status"
+            value={ form.status }
+            onChange={ onChangeHandler }
+          >
+            <FormOption value="In Progress">In Progress</FormOption>
+            <FormOption value="Completed">Completed</FormOption>
+            <FormOption value="Pending">Pending</FormOption>
+          </FormSelect>
+        </FormGroup>
 
-        <Button type="submit">Add Task</Button>
+        <div><Button type="submit">Add Task</Button></div>
       </TaskForm>
     </TaskContainer>
   );

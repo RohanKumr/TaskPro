@@ -8,6 +8,8 @@ import { Button } from '../../components/common/button';
 import { useAuth } from '../../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import TaskProLogo from '../../images/logo3.jpg';
+import { backend_endpoint } from '../../utils/apis';
+import { toastError } from '../../utils/toast';
 
 const LoginContainer = styled.div`
 display:flex;
@@ -80,7 +82,6 @@ export default function Login() {
   console.log(form);
   console.log(errors);
 
-
   const validate = () => {
     let errorMessages = {};
     const { role, email, password } = form;
@@ -94,16 +95,53 @@ export default function Login() {
     return Object.keys(errorMessages).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
+    console.log("Clicked on login");
     e.preventDefault();
     setErrors({})
     console.log("handling Submit");
 
     console.log({ form });
     if(!validate()) return;
-    login(form);
-    if(form?.role === 'admin') navigate("/admin/tasks");
-    if(form?.role === 'employee') navigate("/tasks");
+
+
+    if(form?.role === 'admin') {
+      login(form);
+      navigate("/admin/tasks");
+    }
+
+    const loginBody = {
+      email: form?.email,
+      password: form?.password
+    };
+
+    if(form?.role === 'employee') {
+
+      try {
+        const res = await fetch(`${backend_endpoint}/verifyuserlogin`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+
+          body: JSON.stringify(loginBody),
+        });
+
+        console.log("Response OK", res.ok);
+
+        if(res.ok) {
+          const data = await res.json();
+          console.log({ data });
+          login(data)
+          navigate("/employee/tasks");
+        } else {
+          toastError(await res.text());
+        }
+
+      } catch {
+        toastError("Something went wrong!")
+      }
+    }
   }
 
   return (
