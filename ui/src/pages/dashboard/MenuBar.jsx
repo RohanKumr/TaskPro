@@ -109,44 +109,51 @@ export default function MenuBar() {
       {
         to: '/admin/tasks',
         name: 'Tasks',
-        icon: faTasks
+        icon: faTasks,
+
       },
       {
         to: '/admin/add-tasks',
         name: 'Add Tasks',
-        icon: faPlus
+        icon: faPlus,
+
       },
       {
         to: '/admin/view-users',
         name: 'View Users',
-        icon: faUsers
+        icon: faUsers,
+
       },
       {
         to: '/admin/add-users',
         name: 'Add User',
-        icon: faUserPlus
+        icon: faUserPlus,
+
       },
       {
         to: '/admin/profile',
         name: 'My Profile',
-        icon: faUser
+        icon: faUser,
+
       },
     ],
     employee: [
       {
         to: 'employee/tasks',
         name: 'Tasks',
-        icon: faClipboardList
+        icon: faClipboardList,
+
       },
       {
         to: 'employee/profile',
         name: 'My Profile',
-        icon: faUser
+        icon: faUser,
+
       },
       {
-        to: 'employee/add-tasks',
+        to: 'restricted',
         name: 'Add Tasks',
-        icon: faPlus
+        icon: faPlus,
       },
     ]
   };
@@ -195,7 +202,7 @@ export default function MenuBar() {
           ) }
 
           { roleBasedMenu[user?.role]?.map((menu) => (
-            <Link key={ menu.to } style={ { textDecoration: 'none' } } to={ menu.to }>
+            <Link key={ menu.to } style={ { textDecoration: 'none' } } to={ menu.to }  >
               <MenuItem>
                 <FontIcon>
                   <FontAwesomeIcon icon={ menu.icon } />

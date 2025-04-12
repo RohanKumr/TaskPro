@@ -50,6 +50,11 @@ public class UserController {
 	@Autowired
 	private UserRepository userRepository;
 
+  @GetMapping("gettaskbyid/{id}")   
+	public Optional<Task> findByTaskId(@PathVariable ("id") long id){
+		return userService.gettask(id);
+	}
+
 	@PostMapping("/verifyuserlogin")
 	public ResponseEntity<?> verifyUserLogin(@RequestBody User user) {
 	    User authenticatedUser = userService.verifyUserLogin(user);

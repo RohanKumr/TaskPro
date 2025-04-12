@@ -46,11 +46,15 @@ export default function TaskDetails() {
   const [task, setTask] = useState(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetch(`${backend_endpoint}/gettask/${id}`)
+  function fetchTask() {
+    fetch(`${backend_endpoint}/gettaskbyid/${id}`)
       .then(res => res.json())
       .then(data => setTask(data))
       .catch(err => console.error(err));
+  }
+
+  useEffect(() => {
+    fetchTask();
   }, [id]);
 
   const handleChange = (e) => {
@@ -62,7 +66,11 @@ export default function TaskDetails() {
     fetch(`${backend_endpoint}/updatetask/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(task),
+      body: JSON.stringify({
+        taskid: task?.id,
+        remarks: task?.remarks,
+        progress: Number(task?.progress)
+      }),
     })
       .then(res => res.json())
       .then(data => {
@@ -75,39 +83,51 @@ export default function TaskDetails() {
       });
   };
 
-
-  if(task) return <Spinner />;
-
+  if(!task) return <Spinner />;
 
   return (
     <Container>
       <h2>Edit Task Details</h2>
-      <Label>Category</Label>
-      <Input name="category" value={ task.category || '' } onChange={ handleChange } />
-
-      <Label>Subcategory</Label>
-      <Input name="subcategory" value={ task.subcategory || '' } onChange={ handleChange } />
 
       <Label>Task Name</Label>
-      <Input name="name" value={ task.name || '' } onChange={ handleChange } />
+      <Input name="name" value={ task?.name || '' } disabled />
+
+      <Label>Category</Label>
+      <Input name="category" value={ task?.category || '' } disabled />
+
+      <Label>Subcategory</Label>
+      <Input name="subcategory" value={ task?.subcategory || '' } disabled />
+
 
       <Label>Description</Label>
-      <TextArea name="description" rows={ 5 } value={ task.description || '' } onChange={ handleChange } />
+      <TextArea name="description" rows={ 5 } value={ task?.description || '' } disabled />
 
       <Label>Priority</Label>
-      <Input name="priority" value={ task.priority || '' } onChange={ handleChange } />
+      <Input name="priority" value={ task?.priority || '' } disabled />
 
       <Label>Status</Label>
-      <Input name="status" value={ task.status || '' } onChange={ handleChange } />
+      <Input name="status" value={ task?.status || '' } disabled />
+
+      <Label>Assigned By</Label>
+      <Input name="assignedBy" value={ task?.assignedBy || '' } disabled />
 
       <Label>Assigned To</Label>
-      <Input name="assignedTo" value={ task.assignedTo || '' } onChange={ handleChange } />
+      <Input name="assignedTo" value={ task?.assignedTo || '' } disabled />
+
+      <Label>Task Assigned Time</Label>
+      <Input name="taskAssignedTime" value={ task?.taskAssignedTime?.split("T")[0] || '' } disabled />
 
       <Label>Start Date</Label>
-      <Input name="startDate" type="date" value={ task.startDate?.split("T")[0] || '' } onChange={ handleChange } />
+      <Input name="startDate" type="date" value={ task?.startDate?.split("T")[0] || '' } disabled />
 
       <Label>End Date</Label>
-      <Input name="endDate" type="date" value={ task.endDate?.split("T")[0] || '' } onChange={ handleChange } />
+      <Input name="endDate" type="date" value={ task?.endDate?.split("T")[0] || '' } disabled />
+
+      <Label>Progress (%)</Label>
+      <Input name="progress" type="number" value={ task?.progress } onChange={ handleChange } min={ 0 } max={ 100 } />
+
+      <Label>Remarks</Label>
+      <TextArea name="remarks" rows={ 3 } value={ task?.remarks || '' } onChange={ handleChange } />
 
       <Button onClick={ handleUpdate }>Update Task</Button>
     </Container>

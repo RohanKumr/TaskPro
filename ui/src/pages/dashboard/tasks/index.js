@@ -7,6 +7,12 @@ import { formatDate } from '../../../utils/helper';
 import { Link } from 'react-router-dom';
 
 
+const Container = styled.div`
+h1 {
+    padding-left:16px;
+    font-size:38px;
+  }
+  `;
 const Table = styled.table`
   border-radius:8px;
   width: 100%;
@@ -46,7 +52,7 @@ export default function Tasks() {
   console.log('All Tasks', allTasks);
 
   return (
-    <>
+    <Container>
       <h1>All Tasks</h1>
       <div style={ { padding: '20px', overflow: 'scroll' } }>
         <Table border="1">
@@ -72,7 +78,7 @@ export default function Tasks() {
               allTasks.map((task) => (
                 <tr key={ task.id }>
                   <td>{ task.id }</td>
-                  <td> <Link to={ `/admin/task/${task.id}` }>{ task.name }</Link>
+                  <td> <Link to={ `/${user?.role}/task/${task.id}` }>{ task.name }</Link>
                   </td>
                   <td>{ task.category }</td>
                   <td>{ task.subcategory }</td>
@@ -91,6 +97,6 @@ export default function Tasks() {
           </tbody>
         </Table>
       </div>
-    </>
+    </Container >
   );
 }

@@ -58,13 +58,14 @@ function App() {
             <Route path="admin/add-tasks" element={ <AddTasks /> } />
             <Route path="admin/tasks" element={ <Tasks /> } />
             <Route path="admin/profile" element={ <Profile /> } />
-            <Route path="/admin/task/:id" element={ <TaskDetails /> } />
+            <Route path="admin/task/:id" element={ <TaskDetails /> } />
 
 
             {/* EMPLOYEE Routes */ }
             <Route path="employee/profile" element={ <Profile /> } />
             <Route path="employee/" element={ <Profile /> } />
             <Route path="employee/tasks" element={ <Tasks /> } />
+            <Route path="employee/task/:id" element={ <TaskDetails /> } />
           </Route>
           <Route path="/login" element={ <Login /> } />
           <Route path="/restricted" element={ <Restricted /> } />

@@ -33,6 +33,12 @@ public class UserServiceImpl implements UserService{
 
 
 
+    @Override
+	public Optional<Task> gettask(long id) {
+		
+		return Optional.of(taskRepository.findById(id).orElse(null));
+	}
+
 	@Override
 	public User verifyUserLogin(User user) {
 		return userRepository.findByEmailAndPassword(user.getEmail(), user.getPassword());
