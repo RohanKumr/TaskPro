@@ -7,11 +7,10 @@ import { backend_endpoint } from '../../../utils/apis';
 import { useAuth } from '../../../context/AuthContext';
 
 const TaskContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
+  h1 {
+    padding-left:16px;
+    font-size:38px;
+  }
 `;
 
 const TaskForm = styled.form`
@@ -21,9 +20,8 @@ const TaskForm = styled.form`
   width: 100%;
   padding: 16px;
   border-radius: 8px;
-  /* max-width: 350px; */
   max-width:100%;
-  /* flex-direction: column; */
+
   flex-wrap:wrap;
   gap: 40px;
   > div {

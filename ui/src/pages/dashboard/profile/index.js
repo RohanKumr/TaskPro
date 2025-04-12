@@ -46,14 +46,14 @@ export default function Profile() {
       <hr />
       <br />
       <FlexContainer>
-        <InfoItem><strong>Name:</strong> { user?.name }</InfoItem>
-        <InfoItem><strong>Role:</strong> { user?.role }</InfoItem>
-        <InfoItem><strong>Department:</strong> { user?.department }</InfoItem>
-        <InfoItem><strong>Contact:</strong> { user?.contact }</InfoItem>
-        <InfoItem><strong>Email:</strong> { user?.email }</InfoItem>
-        <InfoItem><strong>Gender:</strong> { user?.gender || "Not specified" }</InfoItem>
-        <InfoItem><strong>ID:</strong> { user?.id }</InfoItem>
-        <InfoItem><strong>Password:</strong> { user?.password }</InfoItem>
+        <InfoItem><strong>Name:</strong> { user?.name || '-' }</InfoItem>
+        <InfoItem><strong>Role:</strong> { user?.role || '-' }</InfoItem>
+        <InfoItem><strong>Department:</strong> { user?.department || '-' }</InfoItem>
+        <InfoItem><strong>Contact:</strong> { user?.contact || '-' }</InfoItem>
+        <InfoItem><strong>Email:</strong> { user?.email || '-' }</InfoItem>
+        <InfoItem><strong>Gender:</strong> { user?.gender || "Not specified" || '-' }</InfoItem>
+        <InfoItem><strong>ID:</strong> { user?.id || '-' }</InfoItem>
+        <InfoItem><strong>Password:</strong> { user?.password || '-' }</InfoItem>
       </FlexContainer>
     </Container>
   );

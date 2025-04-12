@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components';
-import { FormError, FormInput, FormLabel, FormOption, FormSelect } from '../../../components/form';
+import { FormGroup, FormError, FormInput, FormLabel, FormOption, FormSelect } from '../../../components/form';
 import { ROLES } from '../../../utils/enums'
 import { Heading } from '../../../components/common/heading';
 import { COLOR } from '../../../utils/colors';
@@ -11,11 +11,10 @@ import { backend_endpoint } from '../../../utils/apis';
 import { toastError, toastSuccess } from '../../../utils/toast';
 
 const LoginContainer = styled.div`
-display:flex;
-flex-direction:column;
-justify-content:center;
-align-items:center;
-min-height:100vh;
+  h1 {
+    padding-left:16px;
+    font-size:38px;
+  }
 
 `;
 
@@ -40,17 +39,32 @@ border: 1px solid ${COLOR.PRIMARY};
 `;
 
 const LoginForm = styled.form`
-  display:flex;
-  flex-direction: column;
-  gap:8px;
-  margin:30px 0;
-  width:100%;
-  max-width:350px;
-  /* border:1px solid ${COLOR.PRIMARY}; */
-  padding:16px;
-  border-radius:8px;
-`;
+  display: flex;
+  gap: 8px;
+  margin: 30px 0;
+  width: 100%;
+  padding: 16px;
+  border-radius: 8px;
+  /* max-width: 350px; */
+  max-width:100%;
+  /* flex-direction: column; */
+  flex-wrap:wrap;
+  gap: 40px;
+  > div {
+    width:100%;
+    max-width:40%;
+  }
+  &:last-child {
+    width:auto;
+  }
 
+  @media only screen and (max-width:786px) {
+    gap:16px;
+    >div {
+      max-width:100%;
+    }
+  }
+  `;
 export default function AddUsers() {
   const [form, setForm] = useState({
     role: 'employee',
@@ -153,71 +167,94 @@ export default function AddUsers() {
         </Roles>
         <FormError>{ errors?.role }</FormError>
 
-        <FormLabel >Email</FormLabel>
-        <FormError>{ errors?.email }</FormError>
-        <FormInput
-          name="email"
-          type="text"
-          onChange={ onChangeHandler }
-          value={ form.email }
-          autoComplete='username'
-        />
-        <FormLabel >Name</FormLabel>
-        <FormError>{ errors?.name }</FormError>
-        <FormInput
-          name="name"
-          type="text"
-          onChange={ onChangeHandler }
-          value={ form.name }
-          autoComplete='name'
-        />
+        <FormGroup>
+          <FormLabel>Email</FormLabel>
+          <FormError>{ errors?.email }</FormError>
+          <FormInput
+            name="email"
+            type="text"
+            onChange={ onChangeHandler }
+            value={ form.email }
+            autoComplete="username"
+          />
+        </FormGroup>
 
-        <FormLabel >Gender</FormLabel>
-        <FormError>{ errors?.gender }</FormError>
+        <FormGroup>
+          <FormLabel>Name</FormLabel>
+          <FormError>{ errors?.name }</FormError>
+          <FormInput
+            name="name"
+            type="text"
+            onChange={ onChangeHandler }
+            value={ form.name }
+            autoComplete="name"
+          />
+        </FormGroup>
 
-        <FormSelect name="gender" value={ form.gender } onChange={ onChangeHandler } >
-          <FormOption value="male">Male</FormOption>
-          <FormOption value="female">Female</FormOption>
-        </FormSelect>
+        <FormGroup>
+          <FormLabel>Gender</FormLabel>
+          <FormError>{ errors?.gender }</FormError>
+          <FormSelect
+            name="gender"
+            value={ form.gender }
+            onChange={ onChangeHandler }
+          >
+            <FormOption value="male">Male</FormOption>
+            <FormOption value="female">Female</FormOption>
+          </FormSelect>
+        </FormGroup>
 
+        <FormGroup>
+          <FormLabel>Department</FormLabel>
+          <FormError>{ errors?.department }</FormError>
+          <FormInput
+            name="department"
+            type="text"
+            onChange={ onChangeHandler }
+            value={ form.department }
+            autoComplete="name"
+          />
+        </FormGroup>
 
+        <FormGroup>
+          <FormLabel>Contact</FormLabel>
+          <FormError>{ errors?.contact }</FormError>
+          <FormInput
+            name="contact"
+            type="text"
+            onChange={ onChangeHandler }
+            value={ form.contact }
+            autoComplete="contact"
+          />
+        </FormGroup>
 
-        <FormLabel >Department</FormLabel>
-        <FormError>{ errors?.department }</FormError>
-        <FormInput
-          name="department"
-          type="text"
-          onChange={ onChangeHandler }
-          value={ form.department }
-          autoComplete='name'
-        />
+        <FormGroup>
+          <FormLabel>Password</FormLabel>
+          <FormError>{ errors?.password }</FormError>
+          <FormInput
+            name="password"
+            type="password"
+            onChange={ onChangeHandler }
+            autoComplete="new-password"
+            value={ form.password }
+          />
+        </FormGroup>
 
-        <FormLabel >Contact</FormLabel>
-        <FormError>{ errors?.contact }</FormError>
-        <FormInput
-          name="contact"
-          type="text"
-          onChange={ onChangeHandler }
-          value={ form.contact }
-          autoComplete='contact'
-        />
+        <FormGroup>
+          <FormLabel>Confirm Password</FormLabel>
+          <FormError>{ errors?.confirmPassword }</FormError>
+          <FormInput
+            name="confirmPassword"
+            type="password"
+            onChange={ onChangeHandler }
+            value={ form.confirmPassword }
+          />
+        </FormGroup>
+        <div></div>
+        <div>
+          <Button onClick={ handleSubmit }>Add User</Button>
+        </div>
 
-        <FormLabel>Password</FormLabel>
-        <FormError>{ errors?.password }</FormError>
-        <FormInput
-          name="password"
-          type="password"
-          onChange={ onChangeHandler }
-          autoComplete='new-password'
-          value={ form.password } />
-        <FormLabel>Confirm Password</FormLabel>
-        <FormError>{ errors?.confirmPassword }</FormError>
-        <FormInput
-          name="confirmPassword"
-          type="confirmPassword"
-          onChange={ onChangeHandler }
-          value={ form.confirmPassword } />
-        <Button onClick={ handleSubmit } >Add User</Button>
       </LoginForm>
 
       {/* <Link to='/login'>Already have an account? Login Here!</Link> */ }

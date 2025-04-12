@@ -4,6 +4,7 @@ import { COLOR } from '../../../utils/colors';
 import { backend_endpoint } from '../../../utils/apis';
 import { useAuth } from '../../../context/AuthContext';
 import { formatDate } from '../../../utils/helper';
+import { Link } from 'react-router-dom';
 
 
 const Table = styled.table`
@@ -52,9 +53,9 @@ export default function Tasks() {
           <thead>
             <tr>
               <th>ID</th>
+              <th>Task Name</th>
               <th>Category</th>
               <th>Subcategory</th>
-              <th>Task Name</th>
               {/* <th>Description</th> */ }
               <th>Priority</th>
               {/* <th>Start Date</th> */ }
@@ -71,9 +72,11 @@ export default function Tasks() {
               allTasks.map((task) => (
                 <tr key={ task.id }>
                   <td>{ task.id }</td>
+                  <td> <Link to={ `/admin/task/${task.id}` }>{ task.name }</Link>
+                  </td>
                   <td>{ task.category }</td>
                   <td>{ task.subcategory }</td>
-                  <td>{ task.name }</td>
+
                   {/* <td>{ task.description }</td> */ }
                   <td>{ task.priority }</td>
                   {/* <td>{ formatDate(task.startDate) }</td> */ }

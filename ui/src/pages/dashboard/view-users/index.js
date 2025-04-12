@@ -32,7 +32,7 @@ const Table = styled.table`
   
   
   td, th {
-    border-radius:8px;
+    border-radius:4px;
     background:white;
   }
   th {

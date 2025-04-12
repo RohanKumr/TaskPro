@@ -12,6 +12,7 @@ import Tasks from './pages/dashboard/tasks/index.js';
 import Restricted from './pages/dashboard/restricted/index.js';
 import { ToastContainer } from 'react-toastify';
 import Profile from './pages/dashboard/profile/index.js';
+import TaskDetails from './pages/dashboard/task-details/index.js';
 
 function Auth({ children }) {
   const { user, loading } = useAuth();
@@ -57,6 +58,8 @@ function App() {
             <Route path="admin/add-tasks" element={ <AddTasks /> } />
             <Route path="admin/tasks" element={ <Tasks /> } />
             <Route path="admin/profile" element={ <Profile /> } />
+            <Route path="/admin/task/:id" element={ <TaskDetails /> } />
+
 
             {/* EMPLOYEE Routes */ }
             <Route path="employee/profile" element={ <Profile /> } />
