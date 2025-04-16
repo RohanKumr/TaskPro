@@ -35,6 +35,7 @@ public interface UserService {
 	  public void updateReviewStatus(Long id,String remarks);
 
     public Optional<Task> gettask(long id);
+	public List<TaskProgress> getTaskProgess(long id);
 
 
 

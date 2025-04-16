@@ -10,6 +10,8 @@ import com.example.taskmanagementsystem.Models.User;
 
 public interface AdminService {
 	
+	  String registerationAdmin(Admin admin);
+	
 	  public ResponseEntity<?> verifyAdminLogin(Admin admin);
 	  public User addUser(User user);
 	  public List<User> viewAllUsers();

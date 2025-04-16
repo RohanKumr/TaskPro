@@ -30,6 +30,24 @@ public class TaskProgress {
     @Column(nullable = false)
     private double progress;
     
+    @JsonIgnore
+    @Lob
+    private Blob progressfile;
+    
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime progressUpdatedTime;
+    
+    @Column(length = 500)
+    private String remarks1;
+    
+    @Column(length = 500)
+    private String remarks2;
+    
+    @Column(length = 500)
+    private String reviewstatus;
+    
+    
+    
     public String getRemarks1() {
 		return remarks1;
 	}
@@ -46,14 +64,7 @@ public class TaskProgress {
 		this.remarks2 = remarks2;
 	}
 
-	@Column(length = 500)
-    private String remarks1;
-    
-    @Column(length = 500)
-    private String remarks2;
-    
-    @Column(length = 500)
-    private String reviewstatus;
+	
     
     @Override
 	public String toString() {
@@ -70,13 +81,7 @@ public class TaskProgress {
 		this.reviewstatus = reviewstatus;
 	}
 
-	@JsonIgnore
-    @Lob
-    private Blob progressfile;
-    
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime progressUpdatedTime;
-
+	
     @PrePersist
     protected void onCreate() {
         this.progressUpdatedTime = LocalDateTime.now();
@@ -113,7 +118,6 @@ public class TaskProgress {
 	public void setProgress(double progress) {
 		this.progress = progress;
 	}
-
 
 	public Blob getProgressfile() {
 		return progressfile;

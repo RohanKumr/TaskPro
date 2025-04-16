@@ -28,6 +28,19 @@ public class User {
 	  private String contact;
 	  @JsonIgnore
 	  private Blob userimage;
+	  @Column(nullable = false)
+	  private String role = "USER"; 
+	  private boolean enabled = true;
+
+	    // Getters and Setters remain the same, but add these new ones:
+	    public boolean isEnabled() {
+	        return enabled;
+	    }
+
+	    public void setEnabled(boolean enabled) {
+	        this.enabled = enabled;
+	    }
+	    
 
 	  public Blob getUserimage() {
 		return userimage;
@@ -35,7 +48,6 @@ public class User {
 	public void setUserimage(Blob userimage) {
 		this.userimage = userimage;
 	}
-	private String role;
 	public int getId() {
 		return id;
 	}

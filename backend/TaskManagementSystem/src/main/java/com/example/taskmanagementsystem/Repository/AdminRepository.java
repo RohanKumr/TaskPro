@@ -7,4 +7,6 @@ import com.example.taskmanagementsystem.Models.Admin;
 public interface AdminRepository extends JpaRepository<Admin,String>{
 	
 	public Admin findByUsernameAndPassword(String username, String password);
+	
+    Admin findByUsername(String username);
 }

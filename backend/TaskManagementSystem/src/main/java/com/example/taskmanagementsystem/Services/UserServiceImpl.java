@@ -38,6 +38,11 @@ public class UserServiceImpl implements UserService{
 		
 		return Optional.of(taskRepository.findById(id).orElse(null));
 	}
+    
+    @Override
+	public List<TaskProgress> getTaskProgess(long id) {
+		return taskProgressRepository.findByTaskid(id);
+	}
 
 	@Override
 	public User verifyUserLogin(User user) {
@@ -121,6 +126,12 @@ public class UserServiceImpl implements UserService{
 	    
 	    // Both users exist, proceed to save
 	    taskRepository.save(task);
+	    
+	 // Create initial task progress record
+        TaskProgress initialProgress = new TaskProgress();
+        initialProgress.setTaskid(task.getId());
+        initialProgress.setProgress(0);
+        taskProgressRepository.save(initialProgress);
 	    return "Task Assigned Successfully";
 		
 	}
@@ -160,10 +171,22 @@ public class UserServiceImpl implements UserService{
 	
 	
 	@Override
-	public String updateTaskProgress(TaskProgress taskProgress) 
-	{
-		taskProgressRepository.save(taskProgress);
-		return "Task Progress Updated Successfully";
+	public String updateTaskProgress(TaskProgress taskProgress) {
+	    // 1. Save TaskProgress
+	    taskProgressRepository.save(taskProgress);
+
+	    // 2. Update corresponding Task
+	    Optional<Task> optionalTask = taskRepository.findById(taskProgress.getTaskid());
+	    if (optionalTask.isPresent()) {
+	        Task task = optionalTask.get();
+	        task.setProgress(taskProgress.getProgress());
+	        task.setRemarks(taskProgress.getRemarks1()); // Map remarks1 (TaskProgress) → remarks (Task)
+	        task.setStatus(taskProgress.getReviewstatus()); // Map reviewstatus → status
+	        taskRepository.save(task);
+	    } else {
+	        throw new RuntimeException("Task not found with ID: " + taskProgress.getTaskid());
+	    }
+	    return "Task Progress Updated Successfully";
 	}
 	
 	@Override
@@ -215,4 +238,7 @@ public class UserServiceImpl implements UserService{
 		
 		return "Self Task Updated Successfully";
 	}
+
+
+	
 }

@@ -7,6 +7,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,9 +19,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+
 import com.example.taskmanagementsystem.Models.Admin;
 import com.example.taskmanagementsystem.Models.Task;
 import com.example.taskmanagementsystem.Models.User;
+import com.example.taskmanagementsystem.Repository.AdminRepository;
 import com.example.taskmanagementsystem.Services.AdminService;
 
 import jakarta.mail.MessagingException;
@@ -30,16 +35,55 @@ public class AdminController {
 	
 	@Autowired
 	private AdminService adminService;
+	
+	@Autowired
+	private AdminRepository adminRepository;
 	@Autowired
 	private JavaMailSender mailSender;
-
-
+	
+	@Autowired  // Spring injects the bean automatically
+    private AuthenticationManager authenticationManager; 
+	
+	
+	@PostMapping("/register-admin")
+	public ResponseEntity<String> registerAdmin(@RequestBody Admin registration) {
+	    String result = adminService.registerationAdmin(registration);
+	    if (result.equals("Username already exists")) {
+	        return ResponseEntity.badRequest().body(result);
+	    }
+	    return ResponseEntity.ok(result);
+	}
+	
 	@PostMapping("/verifyadminlogin")
 	public ResponseEntity<?> verifyAdminLogin(@RequestBody Admin admin) {
-		return adminService.verifyAdminLogin(admin);
+	    try {
+	        Authentication authentication = authenticationManager.authenticate(
+	            new UsernamePasswordAuthenticationToken(
+	                admin.getUsername(),
+	                admin.getPassword()
+	            )
+	        );
+	        
+	     // 2. Check if the user is an ADMIN (exists in admin_table)
+	        Admin authenticatedAdmin = adminRepository.findByUsername(admin.getUsername());
+	        if (authenticatedAdmin == null) {
+	            return ResponseEntity.status(403).body("Access denied: Not an admin.");
+	        }
+	        return ResponseEntity.ok(authenticatedAdmin.getUsername()+"login successful");
+	    } catch (Exception e) {
+	        return ResponseEntity.status(401).body("Login failed: Invalid credentials");
+	    }
 	}
+
+
+	
 	@PostMapping("adduser")
-	public ResponseEntity<String> addUser(@RequestBody User user) throws MessagingException{
+	public ResponseEntity<String> addUser(@RequestBody User user,Authentication authentication) throws MessagingException{
+		
+		if (!isAdmin(authentication)) {
+	        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Only admins can add users.");
+	    }
+		
 		// Check if the email already exists
 	    if (adminService.isEmailExist(user.getEmail())) {
 	        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -51,44 +95,14 @@ public class AdminController {
 	        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
 	                             .body("Contact number already exists");
 	    }
-
-	    // MimeMessage mimeMessage = mailSender.createMimeMessage();
-	    
-	    // MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
-	    
-	    // helper.setTo(user.getEmail());
-	    // helper.setSubject("Account Creation");
-	    // helper.setFrom("dileepdurgam.us@gmail.com");
-	    
-	    // // Enhanced HTML content with styles and a login link
-	    // String htmlContent =
-	    // "<html>" +
-	    //     "<head>" +
-	    //         "<style>" +
-	    //             "body { font-family: Arial, sans-serif; color: #333; }" +
-	    //             "h3 { color: #4CAF50; }" +
-	    //             "p { font-size: 16px; line-height: 1.5; }" +
-	    //             "strong { color: #2C3E50; }" +
-	    //             "a { color: #1E90FF; text-decoration: none; font-weight: bold; }" +
-	    //             "a:hover { text-decoration: underline; }" +
-	    //             ".footer { margin-top: 20px; font-size: 14px; color: #888; }" +
-	    //         "</style>" +
-	    //     "</head>" +
-	    //     "<body>" +
-	    //         "<h3>Welcome to Our Platform!</h3>" +
-	    //         "<p><strong>Email:</strong> " + user.getEmail() + "</p>" +
-	    //         "<p><strong>Password:</strong> " + user.getPassword() + "</p>" +
-	    //         "<p class='footer'>Please click the link below to log in to your account:</p>" +
-	    //         "<p class='footer'><a href='http://localhost:8000'>Click here to log in</a></p>" +
-	    //     "</body>" +
-	    // "</html>";
-	    
-	    // helper.setText(htmlContent, true);
-	    // mailSender.send(mimeMessage);
-	    
 	    adminService.addUser(user);
 	    return ResponseEntity.status(HttpStatus.CREATED).body("User Added Successfully");
 
+	}
+	private boolean isAdmin(Authentication authentication) {
+	    String username = authentication.getName();
+	    Admin admin = adminRepository.findByUsername(username); // Check admin_table
+	    return admin != null; // True only if user exists in admin_table
 	}
 
 	

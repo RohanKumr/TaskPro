@@ -15,6 +15,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.taskmanagementsystem.DTO.TaskDTO;
 import com.example.taskmanagementsystem.DTO.TaskProgressDTO;
 import com.example.taskmanagementsystem.DTO.TaskReviewUpdateDTO;
 import com.example.taskmanagementsystem.Models.SelfTask;
@@ -49,21 +53,102 @@ public class UserController {
 	
 	@Autowired
 	private UserRepository userRepository;
-
-  @GetMapping("gettaskbyid/{id}")   
-	public Optional<Task> findByTaskId(@PathVariable ("id") long id){
-		return userService.gettask(id);
-	}
-
+	
+	@Autowired  
+    private AuthenticationManager authenticationManager; 
+	
+	
 	@PostMapping("/verifyuserlogin")
 	public ResponseEntity<?> verifyUserLogin(@RequestBody User user) {
-	    User authenticatedUser = userService.verifyUserLogin(user);
-	    if (authenticatedUser == null) {
-	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Login Failed");
+	    try {
+	        Authentication authentication = authenticationManager.authenticate(
+	            new UsernamePasswordAuthenticationToken(
+	                user.getEmail(),
+	                user.getPassword()
+	            )
+	        );
+	        
+	     // 2. Verify the user exists in User_table (not Admin_table)
+	        User authenticatedUser = userRepository.findByEmail(user.getEmail());
+	        if (authenticatedUser == null) {
+	            return ResponseEntity.status(403).body("Access denied: Not a user.");
+	        }
+	        return ResponseEntity.ok(authenticatedUser.getName()+" login successful");
+	    } catch (Exception e) {
+	        return ResponseEntity.status(401).body("Login failed: Invalid credentials");
 	    }
-	    return ResponseEntity.ok(authenticatedUser);
 	}
 
+    @GetMapping("gettaskbyid/{id}")   
+	public TaskDTO findByTaskId(@PathVariable ("id") long id){
+    	
+    	Task currentTask = userService.gettask(id).get();
+    	TaskProgress taskProgress= userService.getTaskProgess(id).get(0);
+    	
+    	TaskDTO taskDto= new TaskDTO(taskProgress.getId(),currentTask.getId(),currentTask.getCategory(),currentTask.getName(),currentTask.getDescription(),currentTask.getPriority()); 
+        taskDto.setRemarks("");
+        taskDto.setReviewstatus("");
+    	
+    	return taskDto;
+	}
+    
+    @PostMapping("/updatetaskprogress")
+    public ResponseEntity<String> updateTaskProgress(
+            @RequestParam("taskid") Long taskid,
+            @RequestParam("progress") double progress,
+            @RequestParam("remarks") String remarks,
+            @RequestParam(value = "progressfile", required = false) MultipartFile progressfile,
+            @RequestParam("updatedBy") int updatedBy) {
+
+        try {
+            TaskProgress taskProgress = new TaskProgress();
+            taskProgress.setTaskid(taskid);
+            taskProgress.setProgress(progress);
+            taskProgress.setRemarks1(remarks); // Will sync to Task.remarks
+            taskProgress.setUpdatedBy(updatedBy);
+            taskProgress.setReviewstatus("SUBMITTED FOR REVIEW"); // Will sync to Task.status
+
+            if (progressfile != null && !progressfile.isEmpty()) {
+                Blob progressBlob = createBlobFromMultipartFile(progressfile);
+                taskProgress.setProgressfile(progressBlob);
+            }
+
+            userService.updateTaskProgress(taskProgress); // This now updates both tables
+            return ResponseEntity.ok("Task progress updated successfully");
+        } catch (IOException | SQLException e) {
+            return ResponseEntity.status(500).body("Failed: " + e.getMessage());
+        }
+    }
+    
+    @PutMapping("updatetask")
+    public ResponseEntity<String> updatetask(@RequestBody TaskReviewUpdateDTO request) 
+    {
+        Long taskid = request.getTaskid();
+        Long progressid = request.getProgressid();
+        Double progress = request.getProgress();
+        String remarks = request.getRemarks();
+        
+        System.out.println(taskid);
+
+        if (progress == null) {
+            return ResponseEntity.badRequest().body("Progress value is required.");
+        }
+
+        // Update the task based on progress
+        if (progress == 100) 
+        {
+            userService.updateTask(taskid, progress, "COMPLETED");
+        } 
+        else 
+        {
+            userService.updateTask(taskid, progress, "IN PROGRESS");
+        }
+
+        // Update review status regardless of progress value
+        userService.updateReviewStatus(progressid, remarks);
+
+        return ResponseEntity.ok("Task has been reviewed successfully");
+    }
 	@GetMapping("getallusers")
 	public List<User> getallusers()
 	{
@@ -95,49 +180,18 @@ public class UserController {
 		return userService.deleteTask(id);
 	}
 
-	
-
 	@GetMapping("getuserbyid/{id}")
 	public User getuserbyid(@PathVariable("id") long id)
 	{
 		return userService.getUserById(id);
 	}
+	
 	@PutMapping("updateuser")
     public String updateuser(@RequestBody User user)
     {
     	return userService.updateUser(user);
     }
 	
-	
-	
-	@PostMapping("/updatetaskprogress")
-    public ResponseEntity<String> updateTaskProgress(@RequestParam ("taskid") Long taskid,
-            @RequestParam ("progress")double progress,
-            @RequestParam ("remarks") String remarks,
-            @RequestParam (value= "progressfile",required=false)MultipartFile progressfile,
-            @RequestParam ("updatedBy")int updatedBy) 
-	{
-
-		try {
-	        TaskProgress taskProgress = new TaskProgress();
-	        taskProgress.setTaskid(taskid);
-	        taskProgress.setProgress(progress);
-	        taskProgress.setRemarks1(remarks);
-	        taskProgress.setUpdatedBy(updatedBy);
-	        taskProgress.setReviewstatus("SUBMITTED FOR REVIEW");
-
-	        // Only process file if provided
-	        if (progressfile != null && !progressfile.isEmpty()) {
-	            Blob progressBlob = createBlobFromMultipartFile(progressfile);
-	            taskProgress.setProgressfile(progressBlob);
-	        }
-
-	        userService.updateTaskProgress(taskProgress);
-	        return ResponseEntity.ok("Task progress updated successfully");
-	    } catch (IOException | SQLException e) {
-	        return ResponseEntity.status(500).body("Failed: " + e.getMessage());
-	    }
-    }
 
     private Blob createBlobFromMultipartFile(MultipartFile file) throws IOException, SQLException 
     {
@@ -189,35 +243,7 @@ public class UserController {
         }
     }
     
-    @PutMapping("updatetask")
-    public ResponseEntity<String> updatetask(@RequestBody TaskReviewUpdateDTO request) 
-    {
-        Long taskid = request.getTaskid();
-        Long progressid = request.getProgressid();
-        Double progress = request.getProgress();
-        String remarks = request.getRemarks();
-        
-        System.out.println(taskid);
-
-        if (progress == null) {
-            return ResponseEntity.badRequest().body("Progress value is required.");
-        }
-
-        // Update the task based on progress
-        if (progress == 100) 
-        {
-            userService.updateTask(taskid, progress, "COMPLETED");
-        } 
-        else 
-        {
-            userService.updateTask(taskid, progress, "IN PROGRESS");
-        }
-
-        // Update review status regardless of progress value
-        userService.updateReviewStatus(progressid, remarks);
-
-        return ResponseEntity.ok("Task has been reviewed successfully");
-    }
+    
     
 
     
@@ -259,86 +285,4 @@ public class UserController {
     {
     	return userService.updateSelfTask(selfTask.getId(), selfTask.getStatus());
     }
-
-	
-	
-	@PostMapping("forgotpassword/{email}")
-	public ResponseEntity<String> forgotpassword(@PathVariable("email") String email) {
-	    try {
-	        // Check if the user exists in the database
-	        User user = userRepository.findByEmail(email); // Replace with your repository logic
-	        if (user == null) {
-	            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
-	        }
-
-	        // Generate a reset link (assuming email is enough for identification)
-	        String resetLink = "http://localhost:5173/resetpassword?email=" + email;
-
-	        // Prepare the email
-	        MimeMessage mimeMessage = mailSender.createMimeMessage();
-	        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
-
-	        helper.setTo(email);
-	        helper.setSubject("Reset Your Password");
-	        helper.setFrom("dileepdurgam.us@gmail.com");
-
-	        // Email content with a reset link
-	        String htmlContent =
-	            "<html>" +
-	                "<head>" +
-	                    "<style>" +
-	                        "body { font-family: Arial, sans-serif; color: #333; }" +
-	                        "h3 { color: #4CAF50; }" +
-	                        "p { font-size: 16px; line-height: 1.5; }" +
-	                        "a { color: #1E90FF; text-decoration: none; font-weight: bold; }" +
-	                        "a:hover { text-decoration: underline; }" +
-	                    "</style>" +
-	                "</head>" +
-	                "<body>" +
-	                    "<h3>Reset Your Password</h3>" +
-	                    "<p>Click the link below to reset your password:</p>" +
-	                    "<p><a href='" + resetLink + "'>Reset Password</a></p>" +
-	                    "<p>If you did not request a password reset, please ignore this email.</p>" +
-	                "</body>" +
-	            "</html>";
-
-	        helper.setText(htmlContent, true);
-	        mailSender.send(mimeMessage);
-
-	        return ResponseEntity.ok("Reset password email sent successfully.");
-	    } catch (Exception e) {
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error while sending email: " + e.getMessage());
-	    }
-	}
-
-	
-	
-	
-    
-    @PostMapping("resetpassword")
-	public ResponseEntity<String> resetPassword(@RequestBody Map<String, String> payload) 
-	{
-	    String email = payload.get("email");
-	    String newPassword = payload.get("password");
-	    String confirmPassword = payload.get("confirmPassword");
-
-	    if (!newPassword.equals(confirmPassword)) 
-	    {
-	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Passwords do not match.");
-	    }
-
-	    // Update password logic
-	    User user = userRepository.findByEmail(email);
-	    if (user == null) {
-	        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
-	    }
-
-	    userService.resetPassword(email, confirmPassword);
-
-	    return ResponseEntity.ok("Password updated successfully.");
-	}
-
-
-
-
 }
