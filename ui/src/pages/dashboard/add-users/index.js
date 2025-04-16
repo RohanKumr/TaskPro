@@ -173,6 +173,7 @@ export default function AddUsers() {
           <FormInput
             name="email"
             type="text"
+            placeholder="Enter Email"
             onChange={ onChangeHandler }
             value={ form.email }
             autoComplete="username"
@@ -185,6 +186,7 @@ export default function AddUsers() {
           <FormInput
             name="name"
             type="text"
+            placeholder="Enter Full Name"
             onChange={ onChangeHandler }
             value={ form.name }
             autoComplete="name"
@@ -210,6 +212,7 @@ export default function AddUsers() {
           <FormInput
             name="department"
             type="text"
+            placeholder="Enter Department"
             onChange={ onChangeHandler }
             value={ form.department }
             autoComplete="name"
@@ -222,6 +225,7 @@ export default function AddUsers() {
           <FormInput
             name="contact"
             type="text"
+            placeholder="Enter Contact"
             onChange={ onChangeHandler }
             value={ form.contact }
             autoComplete="contact"
@@ -234,6 +238,7 @@ export default function AddUsers() {
           <FormInput
             name="password"
             type="password"
+            placeholder="Enter Password"
             onChange={ onChangeHandler }
             autoComplete="new-password"
             value={ form.password }
@@ -246,6 +251,7 @@ export default function AddUsers() {
           <FormInput
             name="confirmPassword"
             type="password"
+            placeholder="Enter Password"
             onChange={ onChangeHandler }
             value={ form.confirmPassword }
           />

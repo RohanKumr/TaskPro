@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components';
-import { COLOR } from '../../../utils/colors';
 import { backend_endpoint } from '../../../utils/apis';
 import { toastError, toastSuccess } from '../../../utils/toast';
+import { Table } from '../../../components/table';
 
 
 const DeleteButton = styled.table`
-/* background:red; */
-/* color:white; */
 padding:4px 6px;
 border-radius: 6px;
 color:red;
@@ -17,30 +15,6 @@ cursor: pointer;
   color:white;
   transition:300ms;
 }
-`;
-
-const Table = styled.table`
-  border-radius:8px;
-  width: 100%;
-  border:1px solid transparent;
-  
-  th, tr, td {
-    padding:16px;
-    text-align:center;
-  }
-
-  
-  
-  td, th {
-    border-radius:4px;
-    background:white;
-  }
-  th {
-    background:${COLOR.PRIMARY};
-    color:${COLOR.WHITE}
-
-  }
-
 `;
 
 export default function ViewUsers() {
@@ -109,6 +83,7 @@ export default function ViewUsers() {
               <th>Password</th>
               <th>Contact Number</th>
               <th>Role</th>
+              <th>Action</th>
 
 
             </tr>
@@ -117,7 +92,7 @@ export default function ViewUsers() {
             { allUsers?.length !== 0 && allUsers?.map((user) => (
               <tr key={ user.id }>
                 <td>{ user.id }</td>
-                <td>{ user.name }</td>
+                <td  >{ user.name }</td>
                 <td>{ user.gender }</td>
                 <td>{ user.department }</td>
                 <td>{ user.email }</td>

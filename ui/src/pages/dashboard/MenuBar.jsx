@@ -13,6 +13,8 @@ import {
   faUserTie
 } from '@fortawesome/free-solid-svg-icons';
 import { Tooltip } from 'react-tooltip'
+import { useLocation } from 'react-router-dom';
+
 
 
 const MenuContainer = styled.div`
@@ -33,6 +35,10 @@ const MenuContainer = styled.div`
     height: 100vh;
     padding: ${({ isOpen }) => (isOpen ? '20px' : '0')};
   }
+  #admin {
+    width:auto;
+    font-size:24px;
+  }
 `;
 
 const ToggleButton = styled.div`
@@ -46,7 +52,9 @@ const ToggleButton = styled.div`
 
   @media only screen and (min-width: 769px) {
     color:white;
-    left: ${({ isOpen }) => (isOpen ? '220px' : '20px')};
+    width:20px;
+    text-align:center;
+    left: ${({ isOpen }) => (isOpen ? '220px' : '24px')};
     transition: left 0.3s ease;
   }
 `;
@@ -64,18 +72,27 @@ const MenuItem = styled.div`
   `;
 
 const FontIcon = styled.div`
-  color: white;
-  /* min-width: 20px; */
-
   
+  color:${({ isActive }) => isActive ? COLOR.PRIMARY : COLOR.WHITE} ;
+  background:${({ isActive }) => isActive ? COLOR.WHITE : COLOR.PRIMARY} ;
+  width:40px;
+  min-width:20px;
+  text-align:center;
+  padding:4px ;
+  border-radius:2px;  
   svg {
     font-size: 18px;
-    /* height: auto; */
+    text-shadow:${({ isActive }) => isActive ? '#fff 0px 1px 20px' : COLOR.WHITE} ;
   }
+
+  
 `;
 const MenuName = styled.h3`
 padding-left:16px;
-color:${COLOR.BACKGROUND};
+color:${({ isActive }) => isActive ? 'white' : COLOR.WHITE};
+text-shadow:${({ isActive }) => isActive ? '#fff 0px 1px 20px' : COLOR.WHITE} ;
+white-space: nowrap;
+overflow: hidden;
   `;
 
 const AuthButton = styled.div`
@@ -91,10 +108,13 @@ object-fit:cover;
 margin-top:-70px;
 /* position:relative; */
 border-radius:40px;
+transition:300ms ease-out;
 `
 
 export default function MenuBar() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const location = useLocation();
+
 
   const navigate = useNavigate()
   const { user, logout } = useAuth();
@@ -192,7 +212,10 @@ export default function MenuBar() {
             </>
 
           ) : (
-            <p style={ { position: 'relative', zIndex: 1 } }>
+            <p style={ {
+              position: 'relative', zIndex: 1,
+              color: user?.role === 'admin' ? 'crimson' : 'yellowgreen'
+            } }>
               { capitalise(user?.role) }
             </p>
           ) }
@@ -201,16 +224,20 @@ export default function MenuBar() {
             <LogoStyle src={ TaskProLogo } alt="TaskPro Logo" />
           ) }
 
-          { roleBasedMenu[user?.role]?.map((menu) => (
-            <Link key={ menu.to } style={ { textDecoration: 'none' } } to={ menu.to }  >
-              <MenuItem>
-                <FontIcon>
-                  <FontAwesomeIcon icon={ menu.icon } />
-                </FontIcon>
-                { isSidebarOpen && <MenuName>{ menu.name }</MenuName> }
-              </MenuItem>
-            </Link>
-          )) }
+          { roleBasedMenu[user?.role]?.map((menu) => {
+            const isActive = location.pathname === menu.to;
+
+            return (
+              <Link key={ menu.to } to={ menu.to } style={ { textDecoration: 'none' } }>
+                <MenuItem >
+                  <FontIcon isActive={ isActive } >
+                    <FontAwesomeIcon icon={ menu.icon } />
+                  </FontIcon>
+                  { isSidebarOpen && <MenuName isActive={ isActive } >{ menu.name }</MenuName> }
+                </MenuItem>
+              </Link>
+            );
+          }) }
         </div>
 
         <AuthButton>

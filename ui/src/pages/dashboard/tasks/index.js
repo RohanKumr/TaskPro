@@ -3,8 +3,12 @@ import styled from 'styled-components';
 import { COLOR } from '../../../utils/colors';
 import { backend_endpoint } from '../../../utils/apis';
 import { useAuth } from '../../../context/AuthContext';
-import { formatDate } from '../../../utils/helper';
+// import { formatDate } from '../../../utils/helper';
 import { Link } from 'react-router-dom';
+import { Table } from '../../../components/table';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCaretDown, faCaretUp, faMinus } from '@fortawesome/free-solid-svg-icons';
+
 
 
 const Container = styled.div`
@@ -13,32 +17,46 @@ h1 {
     font-size:38px;
   }
   `;
-const Table = styled.table`
-  border-radius:8px;
-  width: 100%;
-  border:1px solid transparent;
-  
-  th, tr, td {
-    padding:16px;
-    text-align:center;
-  }
-  
-  td, th {
-    border-radius:2px;
-    background:white;
-  }
-  th {
-    background:${COLOR.PRIMARY};
-    color:${COLOR.WHITE}
-
-  }
-
-`;
 
 export default function Tasks() {
-  const [allTasks, setAllTasks] = useState([]);
-
   const { user } = useAuth();
+  const [allTasks, setAllTasks] = useState([]);
+  const [sortConfig, setSortConfig] = useState({ key: 'id', direction: 'asc' });
+
+  const sortedTasks = React.useMemo(() => {
+    if(!sortConfig.key) return allTasks;
+
+    return [...allTasks].sort((a, b) => {
+      const aValue = a[sortConfig.key];
+      const bValue = b[sortConfig.key];
+
+      if(aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+      if(aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }, [allTasks, sortConfig]);
+
+
+  const handleSort = (key) => {
+    setSortConfig(prev => ({
+      key,
+      direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
+    }));
+  };
+
+  console.log({ sortConfig })
+
+  const getSortIcon = (key) => {
+    if(sortConfig.key !== key)
+      return <FontAwesomeIcon className='sorting-icon' icon={ faMinus } style={ { marginLeft: '6px' } } />
+
+    if(sortConfig.direction === 'asc')
+      return <FontAwesomeIcon className='sorting-icon' icon={ faCaretDown } style={ { marginLeft: '6px' } } />
+    if(sortConfig.direction === 'desc')
+      return <FontAwesomeIcon className='sorting-icon' icon={ faCaretUp } style={ { marginLeft: '6px' } } />
+  };
+
+
 
   console.log({ user });
   useEffect(() => {
@@ -58,43 +76,44 @@ export default function Tasks() {
         <Table border="1">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Task Name</th>
-              <th>Category</th>
-              <th>Subcategory</th>
-              {/* <th>Description</th> */ }
-              <th>Priority</th>
-              {/* <th>Start Date</th> */ }
-              {/* <th>End Date</th> */ }
-              {/* <th>Assigned To</th> */ }
-              {/* <th>Assigned By</th> */ }
-              <th>Status</th>
-              {/* <th>Progress</th> */ }
-              {/* <th>Remarks</th> */ }
+              <th onClick={ () => handleSort('id') }>ID { getSortIcon('id') }</th>
+              <th className="th-left" onClick={ () => handleSort('name') }>Task Name { getSortIcon('name') }</th>
+              <th onClick={ () => handleSort('category') }>Category { getSortIcon('category') }</th>
+              <th onClick={ () => handleSort('subcategory') }>Subcategory { getSortIcon('subcategory') }</th>
+              <th onClick={ () => handleSort('priority') }>Priority { getSortIcon('priority') }</th>
+              <th onClick={ () => handleSort('status') }>Status { getSortIcon('status') }</th>
             </tr>
           </thead>
+
+
+          {/* <th>Description</th> */ }
+          {/* <th>Start Date</th> */ }
+          {/* <th>End Date</th> */ }
+          {/* <th>Assigned To</th> */ }
+          {/* <th>Assigned By</th> */ }
+          {/* <th>Progress</th> */ }
+          {/* <th>Remarks</th> */ }
           <tbody>
-            { allTasks.length !== 0 &&
-              allTasks.map((task) => (
+            { sortedTasks.length !== 0 &&
+              sortedTasks.map((task) => (
                 <tr key={ task.id }>
                   <td>{ task.id }</td>
-                  <td> <Link to={ `/${user?.role}/task/${task.id}` }>{ task.name }</Link>
-                  </td>
+                  <td className="th-left" ><Link to={ `/${user?.role}/task/${task.id}` }>{ task.name }</Link></td>
                   <td>{ task.category }</td>
                   <td>{ task.subcategory }</td>
-
-                  {/* <td>{ task.description }</td> */ }
                   <td>{ task.priority }</td>
-                  {/* <td>{ formatDate(task.startDate) }</td> */ }
-                  {/* <td>{ formatDate(task.endDate) }</td> */ }
-                  {/* <td>{ task.assignedTo }</td> */ }
-                  {/* <td>{ task.assignedBy }</td> */ }
                   <td>{ task.status }</td>
-                  {/* <td>{ task.progress }</td> */ }
-                  {/* <td>{ task.remarks }</td> */ }
                 </tr>
               )) }
           </tbody>
+
+          {/* <td>{ formatDate(task.startDate) }</td> */ }
+          {/* <td>{ formatDate(task.endDate) }</td> */ }
+          {/* <td>{ task.assignedTo }</td> */ }
+          {/* <td>{ task.assignedBy }</td> */ }
+          {/* <td>{ task.description }</td> */ }
+          {/* <td>{ task.progress }</td> */ }
+          {/* <td>{ task.remarks }</td> */ }
         </Table>
       </div>
     </Container >

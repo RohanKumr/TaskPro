@@ -142,6 +142,7 @@ export default function AddTask() {
           <FormInput
             name="category"
             type="text"
+            placeholder="Enter Category"
             onChange={ onChangeHandler }
             value={ form.category }
             autoComplete="category"
@@ -154,6 +155,7 @@ export default function AddTask() {
           <FormInput
             name="subcategory"
             type="text"
+            placeholder="Enter Subcategory"
             onChange={ onChangeHandler }
             value={ form.subcategory }
             autoComplete="subcategory"
@@ -166,6 +168,7 @@ export default function AddTask() {
           <FormInput
             name="name"
             type="text"
+            placeholder="Enter Task Name"
             onChange={ onChangeHandler }
             value={ form.name }
             autoComplete="name"
@@ -178,6 +181,7 @@ export default function AddTask() {
           <FormInput
             name="description"
             type="text"
+            placeholder="Enter Description"
             onChange={ onChangeHandler }
             value={ form.description }
             autoComplete="description"
@@ -241,6 +245,7 @@ export default function AddTask() {
           <FormInput
             name="remarks"
             type="text"
+            placeholder="Enter Remarks"
             onChange={ onChangeHandler }
             value={ form.remarks }
             autoComplete="remarks"
