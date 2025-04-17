@@ -5,6 +5,8 @@ import { backend_endpoint } from '../../../utils/apis';
 import { COLOR } from '../../../utils/colors';
 import Spinner from '../../../components/spinner';
 import { toastError, toastSuccess } from '../../../utils/toast';
+import { ROLES } from '../../../utils/enums';
+import { useAuth } from '../../../context/AuthContext';
 
 const Container = styled.div`
   padding: 20px;
@@ -43,6 +45,7 @@ const Button = styled.button`
 `;
 
 export default function TaskDetails() {
+  const { user } = useAuth()
   const { id } = useParams();
   const [task, setTask] = useState(null);
   const navigate = useNavigate();
@@ -64,19 +67,20 @@ export default function TaskDetails() {
   };
 
   const handleUpdate = () => {
-    fetch(`${backend_endpoint}/updatetask/${id}`, {
+
+    const formBody = task;
+
+    // fetch(`${backend_endpoint}/update/${id}`, {
+    fetch(`${backend_endpoint}/update`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        taskid: task?.id,
-        remarks: task?.remarks,
-        progress: Number(task?.progress)
-      }),
+      body: JSON.stringify(formBody),
     })
       .then(res => res.json())
       .then(data => {
         toastSuccess("Task updated successfully!");
-        navigate('/admin/tasks');
+        const isAdmin = user?.role === ROLES.ADMIN
+        navigate(`/${isAdmin ? 'admin' : 'employee'}/tasks`);
       })
       .catch(err => {
         console.error(err);

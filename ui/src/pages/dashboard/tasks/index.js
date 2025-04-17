@@ -11,13 +11,11 @@ import { faCaretDown, faCaretUp, faMinus, faTrash } from '@fortawesome/free-soli
 import { ROLES } from '../../../utils/enums';
 import { toastSuccess, toastError } from '../../../utils/toast';
 import { useLocation } from 'react-router-dom';
+import SearchBar from '../../../components/search-bar';
 
 
 const Container = styled.div`
-h1 {
-  padding-left:16px;
-  font-size:38px;
-}
+
 `;
 
 export default function Tasks() {
@@ -84,11 +82,30 @@ export default function Tasks() {
   }, [pathname]);
 
 
+  let debounceTimeout;
+
+  const searchTasks = (e, delay = 500) => {
+    clearTimeout(debounceTimeout);
+
+    debounceTimeout = setTimeout(() => {
+      fetch(`${backend_endpoint}/searchtasks?keyword=${e.target.value}`)
+        .then((res) => res.json())
+        .then((data) => {
+          setAllTasks(data);
+        })
+        .catch((err) => {
+          console.error('Error fetching search results:', err);
+        });
+    }, delay);
+  };
 
   return (
     <Container>
-      <h1>All Tasks</h1>
       <div style={ { padding: '20px', overflow: 'scroll' } }>
+        <h1>All Tasks</h1>
+        <br />
+        <SearchBar onChange={ searchTasks } />
+        <br />
         <Table border="1">
           <thead>
             <tr>
