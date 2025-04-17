@@ -1,8 +1,8 @@
 const ROLES = {
-  ADMIN: 'admin',
-  MODERATOR: 'moderator',
-  USER: 'user',
-  EMPLOYEE: 'employee'
+  ADMIN: 'ROLE_ADMIN',
+  // MODERATOR: 'moderator',
+  USER: 'USER',
+  // EMPLOYEE: 'employee'
 }
 
 

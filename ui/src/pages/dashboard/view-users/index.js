@@ -80,7 +80,7 @@ export default function ViewUsers() {
               <th>Gender</th>
               <th>Department</th>
               <th>Email</th>
-              <th>Password</th>
+              {/* <th>Password</th> */ }
               <th>Contact Number</th>
               <th>Role</th>
               <th>Action</th>
@@ -96,7 +96,7 @@ export default function ViewUsers() {
                 <td>{ user.gender }</td>
                 <td>{ user.department }</td>
                 <td>{ user.email }</td>
-                <td>{ user.password }</td>
+                {/* <td>{ user.password }</td> */ }
                 <td>{ user.contact }</td>
                 <td>{ user.role }</td>
                 <td><DeleteButton onClick={ () => deleteUser(user.id) } >delete</DeleteButton></td>

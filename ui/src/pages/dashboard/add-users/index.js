@@ -67,12 +67,13 @@ const LoginForm = styled.form`
   `;
 export default function AddUsers() {
   const [form, setForm] = useState({
-    role: 'employee',
+    role: ROLES.USER,
     email: '',
     password: '',
     confirmPassword: '',
-    gender: ''
+    gender: 'male'
   })
+  const { user } = useAuth();
 
   const [errors, setErrors] = useState({});
 
@@ -121,6 +122,10 @@ export default function AddUsers() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Authentication": JSON.stringify({
+            username: user?.username,
+            password: user?.password
+          })
         },
         body: JSON.stringify(form),
       })
@@ -157,13 +162,13 @@ export default function AddUsers() {
       <h1>Add Users</h1>
       <LoginForm >
         <Roles>
-          <Role
+          {/* <Role
             active={ form.role === ROLES.ADMIN }
             onClick={ () => selectRole(ROLES.ADMIN) }
-          >Admin</Role>
+          >Admin</Role> */}
           <Role
-            active={ form.role === ROLES.EMPLOYEE }
-            onClick={ () => selectRole(ROLES.EMPLOYEE) }>Employee</Role>
+            active={ form.role === ROLES.USER }
+            onClick={ () => selectRole(ROLES.USER) }>Employee</Role>
         </Roles>
         <FormError>{ errors?.role }</FormError>
 

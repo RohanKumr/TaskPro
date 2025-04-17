@@ -14,6 +14,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { Tooltip } from 'react-tooltip'
 import { useLocation } from 'react-router-dom';
+import { ROLES } from '../../utils/enums';
 
 
 
@@ -124,8 +125,10 @@ export default function MenuBar() {
     navigate("/login");
   }
 
+
+
   const roleBasedMenu = {
-    admin: [
+    [ROLES.ADMIN]: [
       {
         to: '/admin/tasks',
         name: 'Tasks',
@@ -157,7 +160,7 @@ export default function MenuBar() {
 
       },
     ],
-    employee: [
+    [ROLES.USER]: [
       {
         to: 'employee/tasks',
         name: 'Tasks',
@@ -171,13 +174,14 @@ export default function MenuBar() {
 
       },
       {
-        to: 'restricted',
+        to: 'employee/add-task',
         name: 'Add Tasks',
         icon: faPlus,
       },
     ]
   };
 
+  console.log("Navigation", user?.role)
 
   return (
     <>
@@ -196,8 +200,8 @@ export default function MenuBar() {
               <br />
               <FontIcon id="admin" data-tip={ capitalise(user?.role) }>
                 <FontAwesomeIcon
-                  style={ { color: user?.role === 'admin' ? 'red' : 'yellowgreen' } }
-                  icon={ user?.role === 'admin' ? faIdBadge : faUserTie }
+                  style={ { color: user?.role === ROLES.ADMIN ? 'red' : 'yellowgreen' } }
+                  icon={ user?.role === ROLES.ADMIN ? faIdBadge : faUserTie }
                 />
               </FontIcon>
 
@@ -206,7 +210,7 @@ export default function MenuBar() {
                 place="right"
                 type="dark"
                 effect="solid"
-                content={ user?.role === "admin" ? "Admin" : "Employee" }
+                content={ user?.role === ROLES.ADMIN ? "Admin" : "Employee" }
               />
               <br />
             </>
@@ -214,7 +218,7 @@ export default function MenuBar() {
           ) : (
             <p style={ {
               position: 'relative', zIndex: 1,
-              color: user?.role === 'admin' ? 'crimson' : 'yellowgreen'
+              color: user?.role === ROLES.ADMIN ? 'crimson' : 'yellowgreen'
             } }>
               { capitalise(user?.role) }
             </p>

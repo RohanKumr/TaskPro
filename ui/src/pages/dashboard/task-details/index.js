@@ -4,6 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { backend_endpoint } from '../../../utils/apis';
 import { COLOR } from '../../../utils/colors';
 import Spinner from '../../../components/spinner';
+import { toastError, toastSuccess } from '../../../utils/toast';
 
 const Container = styled.div`
   padding: 20px;
@@ -74,12 +75,12 @@ export default function TaskDetails() {
     })
       .then(res => res.json())
       .then(data => {
-        alert("Task updated successfully!");
+        toastSuccess("Task updated successfully!");
         navigate('/admin/tasks');
       })
       .catch(err => {
         console.error(err);
-        alert("Something went wrong!");
+        toastError("Something went wrong!");
       });
   };
 

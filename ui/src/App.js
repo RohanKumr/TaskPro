@@ -13,6 +13,8 @@ import Restricted from './pages/dashboard/restricted/index.js';
 import { ToastContainer } from 'react-toastify';
 import Profile from './pages/dashboard/profile/index.js';
 import TaskDetails from './pages/dashboard/task-details/index.js';
+import { ROLES } from './utils/enums.js';
+
 
 function Auth({ children }) {
   const { user, loading } = useAuth();
@@ -28,11 +30,12 @@ function Auth({ children }) {
   // const isAdminPath = path.startsWith('/admin');
   const isEmployeePath = path.startsWith('/employee');
 
-  if(role === 'admin') {
+  if(role === ROLES.ADMIN) {
+    if(path === "/") return <Navigate to="admin/tasks" />
     return children;
   }
 
-  if(role === 'employee' && isEmployeePath) {
+  if(role === ROLES.USER && isEmployeePath) {
     return children;
   } else if(path === '/') {
     console.log("return to employee dashboard");
@@ -66,6 +69,7 @@ function App() {
             <Route path="employee/" element={ <Profile /> } />
             <Route path="employee/tasks" element={ <Tasks /> } />
             <Route path="employee/task/:id" element={ <TaskDetails /> } />
+            <Route path="employee/add-task" element={ <AddTasks /> } />
           </Route>
           <Route path="/login" element={ <Login /> } />
           <Route path="/restricted" element={ <Restricted /> } />

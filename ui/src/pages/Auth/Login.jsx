@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import styled from 'styled-components';
 import { FormError, FormInput, FormLabel } from '../../components/form';
-import { ROLES } from '../../utils/enums'
 import { Heading } from '../../components/common/heading';
 import { COLOR } from '../../utils/colors';
 import { Button } from '../../components/common/button';
@@ -9,7 +8,8 @@ import { useAuth } from '../../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import TaskProLogo from '../../images/logo3.jpg';
 import { backend_endpoint } from '../../utils/apis';
-import { toastError } from '../../utils/toast';
+import { toastError, toastSuccess } from '../../utils/toast';
+import { ROLES } from '../../utils/enums';
 
 const LoginContainer = styled.div`
 display:flex;
@@ -60,7 +60,7 @@ const LogoStyle = styled.img`
 
 export default function Login() {
   const [form, setForm] = useState({
-    role: 'employee',
+    role: ROLES.USER,
     email: '',
     password: '',
     id: 5,
@@ -105,17 +105,53 @@ export default function Login() {
     if(!validate()) return;
 
 
-    if(form?.role === 'admin') {
-      login(form);
-      navigate("/admin/tasks");
+
+    if(form?.role === ROLES.ADMIN) {
+      // login(form);
+
+      const loginBody = {
+        username: form?.email,
+        password: form?.password
+      };
+
+      try {
+        const res = await fetch(`${backend_endpoint}/verifyadminlogin`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+
+          body: JSON.stringify(loginBody),
+        });
+
+        console.log("Response OK", res.ok);
+
+        if(res.ok) {
+          const data = await res.json();
+          console.log({ data })
+          toastSuccess(data?.message)
+          login(data?.admin)
+          navigate("/admin/tasks");
+        } else {
+
+          toastError(await res.text());
+        }
+
+      } catch(err) {
+        console.log(err)
+        toastError("Something went wrong!")
+
+      }
+
     }
 
-    const loginBody = {
-      email: form?.email,
-      password: form?.password
-    };
 
-    if(form?.role === 'employee') {
+    if(form?.role === ROLES.USER) {
+
+      const loginBody = {
+        email: form?.email,
+        password: form?.password
+      };
 
       try {
         const res = await fetch(`${backend_endpoint}/verifyuserlogin`, {
@@ -132,7 +168,9 @@ export default function Login() {
         if(res.ok) {
           const data = await res.json();
           console.log({ data });
-          login(data)
+
+          toastSuccess(data?.message)
+          login(data?.user)
           navigate("/employee/tasks");
         } else {
           toastError(await res.text());
@@ -157,8 +195,8 @@ export default function Login() {
             onClick={ () => selectRole(ROLES.ADMIN) }
           >Admin</Role>
           <Role
-            active={ form.role === ROLES.EMPLOYEE }
-            onClick={ () => selectRole(ROLES.EMPLOYEE) }>Employee</Role>
+            active={ form.role === ROLES.USER }
+            onClick={ () => selectRole(ROLES.USER) }>Employee</Role>
         </Roles>
         <FormError>{ errors?.role }</FormError>
 

@@ -6,71 +6,10 @@ import { useAuth } from '../../../context/AuthContext';
 import { Button } from '../../../components/common/button';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { toastError, toastSuccess } from '../../../utils/toast';
+import { Container, Header, Heading, FlexContainer, InfoItem } from './styles';
 
-const Container = styled.div`
-  background-color: #fff;
-  padding: 24px;
-`;
 
-const Heading = styled.h2` 
-  margin-bottom: 16px;
-  color: #333;
-`;
-
-const FlexContainer = styled.div`
-  display:flex;
-  flex-direction:column;
-  gap: 12px;
-  font-size: 14px;
-  color: #555;
-`;
-
-const Header = styled.div`
-  display:flex;
-  width:100%;
-  justify-content:space-between;
-  margin-bottom:30px;
-  .left {
-    display:flex;
-    gap:20px;
-    align-items:center;
-    
-    .image {
-      width:100px;
-      height:100px;
-      display:grid;
-      place-items:center;
-      background: ${COLOR.PRIMARY};
-      border-radius:6px;
-      overflow: hidden;
-      svg {
-        color:white;
-        font-size:36px;
-      }
-      img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
-    }
-    .email {
-      padding-top:4px;
-      color: ${COLOR.TEXT.GREY}
-    }
-  }
-`;
-
-const InfoItem = styled.div`
-  strong {
-    display:inline-block;
-    color: #000;
-    min-width:20%;
-  }
-  input {
-    padding: 4px;
-    font-size: 14px;
-  }
-`;
 
 export default function Profile() {
   const { user, login } = useAuth();
@@ -82,26 +21,44 @@ export default function Profile() {
   const [image, setImage] = useState(null);
 
 
+  console.log("My Profile", user?.id)
+
   useEffect(() => {
-    fetch(`${backend_endpoint}/getuserbyid/17`)
-      .then(res => res.json())
+    fetch(`${backend_endpoint}/getuserbyid/${user?.id}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Basic ' + btoa(`${user?.name}:${user?.password}`)
+      },
+    })
+      .then(res => {
+        if(!res.ok) {
+          // If the response is not OK, throw an error
+          throw new Error(`Error: ${res.status} - ${res.statusText}`);
+        }
+        return res.json();
+      })
       .then(data => {
         if(data.length !== 0) {
-          login(data)
+          login(data);
           // localStorage.setItem("user", JSON.stringify(data));
-
+        } else {
+          toastError('User not found');
         }
       })
-
-
-  }, [])
+      .catch(e => {
+        // Handle any errors here
+        console.error('Error fetching user data:', e);
+        toastError(`An error occurred: ${e.message}`);
+      });
+  }, [user?.id]); // Added user?.id as a dependency for the effect
 
 
   useEffect(() => {
     if(user) {
       setFormData({
         name: user.name,
-        role: user.role,
+        // role: user.role,
         department: user.department,
         contact: user.contact,
         email: user.email,
@@ -148,18 +105,31 @@ export default function Profile() {
           body: imgFormData
         });
 
+        // const updatedImageUrl = await res2.text();
+        // console.log("Updated Image URL:", updatedImageUrl);
+
+
+
+        // localStorage.setItem("image", JSON.stringify(updatedImageUrl));
+
+
         if(!res2.ok) {
           throw new Error('Failed to update image');
         }
       }
 
-      alert('User updated successfully');
+      toastSuccess('User updated successfully');
       setIsEditing(false);
     } catch(err) {
       console.error(err);
-      alert(err.message);
+      toastError(err.message);
     }
   };
+
+  // console.log(localStorage.getItem("image"));
+
+
+
 
   return (
     <Container>
@@ -170,7 +140,7 @@ export default function Profile() {
         <div className="left">
           <div className="image">
             { image ? (
-              <img src={ URL.createObjectURL(image) } alt="User" />
+              <img src={ URL.createObjectURL(image || localStorage.getItem("image")) } alt="User" />
             ) : (
               <FontAwesomeIcon icon={ faUser } />
             ) }
@@ -189,7 +159,7 @@ export default function Profile() {
       </Header>
 
       <FlexContainer>
-        { Object.entries(formData).map(([key, value]) => (
+        { Object.entries(formData).filter(([key]) => key !== "role").map(([key, value]) => (
           <InfoItem key={ key }>
             <strong>{ key.charAt(0).toUpperCase() + key.slice(1) }:</strong>
             { isEditing ? (

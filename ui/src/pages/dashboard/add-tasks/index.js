@@ -5,6 +5,8 @@ import { Button } from '../../../components/common/button';
 import { useNavigate } from 'react-router-dom';
 import { backend_endpoint } from '../../../utils/apis';
 import { useAuth } from '../../../context/AuthContext';
+import { toastError, toastSuccess } from '../../../utils/toast';
+import { ROLES } from '../../../utils/enums';
 
 const TaskContainer = styled.div`
   h1 {
@@ -49,7 +51,7 @@ export default function AddTask() {
     subcategory: '',
     name: '',
     description: '',
-    priority: '',
+    priority: 'Low',
     startDate: '',
     endDate: '',
     assignedTo: '',
@@ -70,7 +72,7 @@ export default function AddTask() {
 
   const validate = () => {
     let errorMessages = {};
-    const { category, subcategory, name, description, priority, startDate, endDate, assignedTo } = form;
+    const { category, subcategory, name, description, priority, startDate, endDate, assignedTo, assignedBy } = form;
 
     if(!category) errorMessages.category = 'Category is required';
     if(!subcategory) errorMessages.subcategory = 'Subcategory is required';
@@ -80,6 +82,7 @@ export default function AddTask() {
     if(!startDate) errorMessages.startDate = 'Start date is required';
     if(!endDate) errorMessages.endDate = 'End date is required';
     if(!assignedTo) errorMessages.assignedTo = 'Assigned To is required';
+    if(!assignedBy) errorMessages.assignedBy = 'Assigned By is required';
 
     setErrors(errorMessages);
 
@@ -87,35 +90,55 @@ export default function AddTask() {
   };
 
   const addTask = async (form) => {
-    await fetch(`${backend_endpoint}/addtask`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(form),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        alert('Task Added!');
-        console.log(data);
-      })
-      .catch((err) => {
-        alert('Error adding task');
-        console.error(err);
+    try {
+      const response = await fetch(`${backend_endpoint}/addtask`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(form),
       });
+
+      const rawData = await response.text();
+      console.log("Raw Response:", rawData);
+
+      let data;
+      try {
+        data = JSON.parse(rawData);
+      } catch(jsonError) {
+        console.error("Error parsing JSON:", jsonError);
+        toastError("Invalid response from server.");
+        return;
+      }
+
+      if(response.ok) {
+        toastSuccess('Task Added!');
+        console.log(data);
+        // Redirect after success
+        if(user?.role === ROLES.ADMIN) navigate('/admin/tasks');
+        if(user?.role === ROLES.USER) navigate('/employee/tasks');
+      } else {
+        toastError(`Error: ${data?.message}`);
+      }
+    } catch(err) {
+      toastError('Error adding task');
+      console.error('Fetch error:', err);
+    }
   };
+
+
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if(validate()) {
       addTask(form);
-      // Redirect after success
-      // navigate('/tasks'); // 
     }
   };
 
   useEffect(() => { }, [errors]);
   useEffect(() => {
+    //For the assigned to users
     fetch(`${backend_endpoint}/getallusers`,)
       .then((res) => res.json())
       .then((data) => {
@@ -123,14 +146,13 @@ export default function AddTask() {
         console.log(data);
       })
       .catch((err) => {
-        alert('Error adding task');
+
+        toastError('Error adding task');
         console.error(err);
       });
 
-    setForm((details) => ({ ...details, assignedBy: user?.id }))
+    // setForm((details) => ({ ...details, assignedBy: user?.id }))
   }, []);
-
-  console.log({ form });
 
   return (
     <TaskContainer>
@@ -229,7 +251,23 @@ export default function AddTask() {
           <FormError>{ errors?.assignedTo }</FormError>
           <FormSelect
             name="assignedTo"
-            value={ form.assignedTo }
+            value={ form.assignedTo || user?.name }
+            onChange={ onChangeHandler }
+          >
+            { allUsers?.map((userInfo) => (
+              <FormOption key={ userInfo.id } value={ userInfo.id }>
+                { userInfo.name }
+              </FormOption>
+            )) }
+          </FormSelect>
+        </FormGroup>
+
+        <FormGroup>
+          <FormLabel>Assigned By</FormLabel>
+          <FormError>{ errors?.assignedBy }</FormError>
+          <FormSelect
+            name="assignedBy"
+            value={ form.assignedBy }
             onChange={ onChangeHandler }
           >
             { allUsers?.map((userInfo) => (
