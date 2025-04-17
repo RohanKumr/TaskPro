@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 
@@ -27,6 +28,7 @@ import com.example.taskmanagementsystem.Models.Admin;
 import com.example.taskmanagementsystem.Models.Task;
 import com.example.taskmanagementsystem.Models.User;
 import com.example.taskmanagementsystem.Repository.AdminRepository;
+import com.example.taskmanagementsystem.Repository.UserRepository;
 import com.example.taskmanagementsystem.Services.AdminService;
 
 import jakarta.mail.MessagingException;
@@ -81,9 +83,6 @@ public ResponseEntity<Map<String, Object>> verifyAdminLogin(@RequestBody Admin a
     }
 }
 
-  
-
-
 	
 	@PostMapping("adduser")
 	public ResponseEntity<String> addUser(@RequestBody User user) throws MessagingException{
@@ -137,7 +136,20 @@ public ResponseEntity<Map<String, Object>> verifyAdminLogin(@RequestBody Admin a
 		   return adminService.getAllTasks();
 	}
 
-
-
+@Autowired
+private UserRepository userRepository;
+ 
+@GetMapping("/searchusers")
+public ResponseEntity<List<User>> searchUsers(@RequestParam("keyword") String keyword) {
+    try {
+        List<User> users = userRepository.searchByNameOrEmail(keyword);
+        if (users.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(users);
+    } catch (Exception e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+}
 
 }

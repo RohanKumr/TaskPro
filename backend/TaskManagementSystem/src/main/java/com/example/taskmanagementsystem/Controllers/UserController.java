@@ -37,6 +37,7 @@ import com.example.taskmanagementsystem.Models.SelfTask;
 import com.example.taskmanagementsystem.Models.Task;
 import com.example.taskmanagementsystem.Models.TaskProgress;
 import com.example.taskmanagementsystem.Models.User;
+import com.example.taskmanagementsystem.Repository.TaskRepository;
 import com.example.taskmanagementsystem.Repository.UserRepository;
 import com.example.taskmanagementsystem.Services.UserService;
 
@@ -54,6 +55,10 @@ public class UserController {
 	
 	@Autowired
 	private UserRepository userRepository;
+
+  @Autowired
+  private 
+  TaskRepository taskRepository;
 
 
 
@@ -91,26 +96,45 @@ public ResponseEntity<Map<String, Object>> verifyUserLogin(@RequestBody User use
 
 
 
+    
+ 
+@PutMapping("/update")
+public ResponseEntity<Map<String, String>> updateTask(@RequestBody Task task) {
+    String result = userService.updateTaskDetails(task);
+    Map<String, String> response = new HashMap<>();
+
+    if (result.equals("Task updated successfully")) {
+        response.put("status", "success");
+        response.put("message", result);
+        return ResponseEntity.ok(response);
+    }
+
+    response.put("status", "error");
+    response.put("message", result);
+    return ResponseEntity.badRequest().body(response);
+}
+
+@GetMapping("/searchtasks")
+public ResponseEntity<List<Task>> searchTasks(@RequestParam("keyword") String keyword) {
+    try {
+        List<Task> tasks = userService.searchTasks(keyword);
+        if (tasks.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(tasks);
+    } catch (Exception e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+}
+
+
 @GetMapping("gettaskbyid/{id}")   
-public TaskDTO findByTaskId(@PathVariable ("id") long id) {
-    Task currentTask = userService.gettask(id).get();
-    TaskProgress taskProgress = userService.getTaskProgess(id).get(0);
-    TaskDTO taskDto = new TaskDTO(
-        taskProgress.getId(),
-        currentTask.getId(),
-        currentTask.getCategory(),
-        currentTask.getName(),
-        currentTask.getDescription(),
-        currentTask.getPriority()
-    ); 
-    // Copy all relevant fields from TaskProgress to the DTO
-    taskDto.setProgress(taskProgress.getProgress());
-    taskDto.setUpdatedBy(taskProgress.getUpdatedBy());
-    taskDto.setProgressfile(taskProgress.getProgressfile());
-    taskDto.setProgressUpdatedTime(taskProgress.getProgressUpdatedTime());
-    taskDto.setRemarks(taskProgress.getRemarks1()); // Or remarks2 depending on your needs
-    taskDto.setReviewstatus(taskProgress.getReviewstatus());
-    return taskDto;
+public ResponseEntity<?> getTaskById(@PathVariable("id") long id) {
+  Optional<Task> task = userService.gettask(id);
+  if (task.isPresent()) {
+      return ResponseEntity.ok(task.get());
+  }
+  return ResponseEntity.notFound().build();
 }
     
     @PostMapping("/updatetaskprogress")
@@ -197,6 +221,9 @@ public TaskDTO findByTaskId(@PathVariable ("id") long id) {
     }
 }
 	
+
+
+
 	@GetMapping("gettasksassignedby/{id}")
 	public List<Task> gettasksassignedby(@PathVariable("id") int id)
 	{

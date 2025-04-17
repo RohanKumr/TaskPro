@@ -59,6 +59,11 @@ public class UserServiceImpl implements UserService{
 		return userRepository.findById(id);
 	}
 
+  public List<Task> searchTasks(String keyword) {
+    return taskRepository.searchTasks(keyword);
+  }
+ 
+
 	@Override
 	public String updateUser(User user) {
 		Optional<User>  obj = 	userRepository.findById(user.getId());
@@ -76,6 +81,25 @@ public class UserServiceImpl implements UserService{
 	     return "User Upated Successfully";
 
 	}
+
+  // In UserServiceImpl
+@Override
+public String updateTaskDetails(Task task) {
+    Optional<Task> existingTaskOpt = taskRepository.findById(task.getId());
+    if (existingTaskOpt.isPresent()) {
+        Task existingTask = existingTaskOpt.get();
+        // Only allow updating certain fields
+        existingTask.setDescription(task.getDescription());
+        existingTask.setPriority(task.getPriority());
+        existingTask.setEndDate(task.getEndDate());
+        existingTask.setRemarks(task.getRemarks());
+        existingTask.setProgress(task.getProgress());
+        existingTask.setStatus(task.getStatus());
+        taskRepository.save(existingTask);
+        return "Task updated successfully";
+    }
+    return "Task not found";
+}
 
 	@Override
 	public String updateUserImage(int id, byte[] imageBytes) {

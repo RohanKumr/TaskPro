@@ -28,6 +28,8 @@ public interface UserService {
 	  public String addSelfTask(SelfTask selfTask);
 	  public List<SelfTask> getAllSelfTasks();
 	  public String updateSelfTask(Long id,String status);
+    // In UserService interface
+    String updateTaskDetails(Task task);
 	  
 	  public List<TaskProgress> myreviewtaskprogress(Long id);
 	  public Optional<TaskProgress> getTaskProgessById(Long id);
@@ -36,6 +38,7 @@ public interface UserService {
 
     public Optional<Task> gettask(long id);
 	public List<TaskProgress> getTaskProgess(long id);
+  public List<Task> searchTasks(String keyword);
 
 
 
