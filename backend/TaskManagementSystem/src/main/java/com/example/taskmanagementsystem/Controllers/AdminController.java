@@ -1,15 +1,18 @@
 package com.example.taskmanagementsystem.Controllers;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
+// import org.springframework.security.authentication.AuthenticationManager;
+// import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+// import org.springframework.security.core.Authentication;
+// import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -41,8 +44,8 @@ public class AdminController {
 	@Autowired
 	private JavaMailSender mailSender;
 	
-	@Autowired  // Spring injects the bean automatically
-    private AuthenticationManager authenticationManager; 
+	// @Autowired  // Spring injects the bean automatically
+  //   private AuthenticationManager authenticationManager; 
 	
 	
 	@PostMapping("/register-admin")
@@ -54,35 +57,40 @@ public class AdminController {
 	    return ResponseEntity.ok(result);
 	}
 	
-	@PostMapping("/verifyadminlogin")
-	public ResponseEntity<?> verifyAdminLogin(@RequestBody Admin admin) {
-	    try {
-	        Authentication authentication = authenticationManager.authenticate(
-	            new UsernamePasswordAuthenticationToken(
-	                admin.getUsername(),
-	                admin.getPassword()
-	            )
-	        );
-	        
-	     // 2. Check if the user is an ADMIN (exists in admin_table)
-	        Admin authenticatedAdmin = adminRepository.findByUsername(admin.getUsername());
-	        if (authenticatedAdmin == null) {
-	            return ResponseEntity.status(403).body("Access denied: Not an admin.");
-	        }
-	        return ResponseEntity.ok(authenticatedAdmin.getUsername()+"login successful");
-	    } catch (Exception e) {
-	        return ResponseEntity.status(401).body("Login failed: Invalid credentials");
-	    }
-	}
+  @PostMapping("/verifyadminlogin")
+public ResponseEntity<Map<String, Object>> verifyAdminLogin(@RequestBody Admin admin) {
+    try {
+        Admin existingAdmin = adminRepository.findByUsername(admin.getUsername());
+
+        if (existingAdmin == null) {
+            return ResponseEntity.status(403).body(Map.of("error", "Access denied: Not an admin."));
+        }
+
+        if (!admin.getPassword().equals(existingAdmin.getPassword())) {
+            return ResponseEntity.status(401).body(Map.of("error", "Login failed: Invalid credentials"));
+        }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Login successful");
+        response.put("admin", existingAdmin);
+
+        return ResponseEntity.ok(response);
+
+    } catch (Exception e) {
+        return ResponseEntity.status(500).body(Map.of("error", "Internal server error: " + e.getMessage()));
+    }
+}
+
+  
 
 
 	
 	@PostMapping("adduser")
-	public ResponseEntity<String> addUser(@RequestBody User user,Authentication authentication) throws MessagingException{
+	public ResponseEntity<String> addUser(@RequestBody User user) throws MessagingException{
 		
-		if (!isAdmin(authentication)) {
-	        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Only admins can add users.");
-	    }
+		// if (!isAdmin(authentication)) {
+	  //       return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Only admins can add users.");
+	  //   }
 		
 		// Check if the email already exists
 	    if (adminService.isEmailExist(user.getEmail())) {
@@ -99,11 +107,12 @@ public class AdminController {
 	    return ResponseEntity.status(HttpStatus.CREATED).body("User Added Successfully");
 
 	}
-	private boolean isAdmin(Authentication authentication) {
-	    String username = authentication.getName();
-	    Admin admin = adminRepository.findByUsername(username); // Check admin_table
-	    return admin != null; // True only if user exists in admin_table
-	}
+	// private boolean isAdmin(Authentication authentication) {
+	//     String username = authentication.getName();
+	//     Admin admin = adminRepository.findByUsername(username); // Check admin_table
+	//     return admin != null; // True only if user exists in admin_table
+      
+	// }
 
 	
 	

@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
+// import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
@@ -29,8 +29,8 @@ public class AdminServiceImplementation implements AdminService {
 	@Autowired
 	private TaskRepository taskRepository;
 	
-	 @Autowired
-	 private PasswordEncoder passwordEncoder;
+	//  @Autowired
+	//  private PasswordEncoder passwordEncoder;
 
 	 @Override
      public String registerationAdmin(Admin registration) {
@@ -40,7 +40,7 @@ public class AdminServiceImplementation implements AdminService {
 	        
 	        Admin admin = new Admin();
 	        admin.setUsername(registration.getUsername());
-	        admin.setPassword(passwordEncoder.encode(registration.getPassword()));
+	        admin.setPassword(registration.getPassword());
 	        admin.setEmail(registration.getEmail());
 	        admin.setRole("ROLE_ADMIN");
 	        admin.setEnabled(true);
@@ -51,7 +51,7 @@ public class AdminServiceImplementation implements AdminService {
 
 	 @Override
 		public User addUser(User user) {
-		    user.setPassword(passwordEncoder.encode(user.getPassword()));
+		    user.setPassword(user.getPassword());
 			return userRepository.save(user);
 		}
 	

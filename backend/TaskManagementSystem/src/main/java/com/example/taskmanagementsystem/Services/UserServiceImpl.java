@@ -64,7 +64,7 @@ public class UserServiceImpl implements UserService{
 		Optional<User>  obj = 	userRepository.findById(user.getId());
 	     
 	     User u = obj.get();
-	     //u.setDepartment(user.getDepartment());
+	     u.setDepartment(user.getDepartment());
 	     //u.setEmail(user.getEmail());
 	     u.setGender(user.getGender());
 	     u.setName(user.getName());

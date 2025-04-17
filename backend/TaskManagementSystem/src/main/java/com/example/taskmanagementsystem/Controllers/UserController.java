@@ -3,6 +3,7 @@ package com.example.taskmanagementsystem.Controllers;
 import java.io.IOException;
 import java.sql.Blob;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -15,9 +16,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
+// import org.springframework.security.authentication.AuthenticationManager;
+// import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+// import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -53,44 +54,64 @@ public class UserController {
 	
 	@Autowired
 	private UserRepository userRepository;
-	
-	@Autowired  
-    private AuthenticationManager authenticationManager; 
+
+
+
 	
 	
 	@PostMapping("/verifyuserlogin")
-	public ResponseEntity<?> verifyUserLogin(@RequestBody User user) {
-	    try {
-	        Authentication authentication = authenticationManager.authenticate(
-	            new UsernamePasswordAuthenticationToken(
-	                user.getEmail(),
-	                user.getPassword()
-	            )
-	        );
-	        
-	     // 2. Verify the user exists in User_table (not Admin_table)
-	        User authenticatedUser = userRepository.findByEmail(user.getEmail());
-	        if (authenticatedUser == null) {
-	            return ResponseEntity.status(403).body("Access denied: Not a user.");
-	        }
-	        return ResponseEntity.ok(authenticatedUser.getName()+" login successful");
-	    } catch (Exception e) {
-	        return ResponseEntity.status(401).body("Login failed: Invalid credentials");
-	    }
-	}
+public ResponseEntity<Map<String, Object>> verifyUserLogin(@RequestBody User user) {
+    try {
+        User existingUser = userRepository.findByEmail(user.getEmail());
 
-    @GetMapping("gettaskbyid/{id}")   
-	public TaskDTO findByTaskId(@PathVariable ("id") long id){
-    	
-    	Task currentTask = userService.gettask(id).get();
-    	TaskProgress taskProgress= userService.getTaskProgess(id).get(0);
-    	
-    	TaskDTO taskDto= new TaskDTO(taskProgress.getId(),currentTask.getId(),currentTask.getCategory(),currentTask.getName(),currentTask.getDescription(),currentTask.getPriority()); 
-        taskDto.setRemarks("");
-        taskDto.setReviewstatus("");
-    	
-    	return taskDto;
-	}
+        if (existingUser == null) {
+            return ResponseEntity.status(403).body(Map.of("error", "Access denied: Not a registered user."));
+        }
+
+        if (!user.getPassword().equals(existingUser.getPassword())) {
+            return ResponseEntity.status(401).body(Map.of("error", "Login failed: Invalid credentials"));
+        }
+
+        // Optional: remove password before returning the user object
+        existingUser.setPassword(null);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Login successful");
+        response.put("user", existingUser);
+
+        System.out.println("+++++++++++++++++++++++++++++++++++++++++++");
+        System.out.println("Existing USER IMAGE: ->" + existingUser.getUserimage());
+
+        return ResponseEntity.ok(response);
+
+    } catch (Exception e) {
+        return ResponseEntity.status(500).body(Map.of("error", "Internal server error: " + e.getMessage()));
+    }
+}
+
+
+
+@GetMapping("gettaskbyid/{id}")   
+public TaskDTO findByTaskId(@PathVariable ("id") long id) {
+    Task currentTask = userService.gettask(id).get();
+    TaskProgress taskProgress = userService.getTaskProgess(id).get(0);
+    TaskDTO taskDto = new TaskDTO(
+        taskProgress.getId(),
+        currentTask.getId(),
+        currentTask.getCategory(),
+        currentTask.getName(),
+        currentTask.getDescription(),
+        currentTask.getPriority()
+    ); 
+    // Copy all relevant fields from TaskProgress to the DTO
+    taskDto.setProgress(taskProgress.getProgress());
+    taskDto.setUpdatedBy(taskProgress.getUpdatedBy());
+    taskDto.setProgressfile(taskProgress.getProgressfile());
+    taskDto.setProgressUpdatedTime(taskProgress.getProgressUpdatedTime());
+    taskDto.setRemarks(taskProgress.getRemarks1()); // Or remarks2 depending on your needs
+    taskDto.setReviewstatus(taskProgress.getReviewstatus());
+    return taskDto;
+}
     
     @PostMapping("/updatetaskprogress")
     public ResponseEntity<String> updateTaskProgress(
@@ -156,11 +177,25 @@ public class UserController {
 	}
 	
 	@PostMapping("/addtask")
-	public String addtask(@RequestBody Task task)
-	{
-		task.setProgress(0);
-		return userService.addTask(task);
-	}
+	public ResponseEntity<Map<String, Object>> addtask(@RequestBody Task task) {
+    task.setProgress(0);
+
+    // Call the service method to add the task
+    String responseMessage = userService.addTask(task);
+
+    // Create a map to hold the response data
+    Map<String, Object> response = new HashMap<>();
+    
+    if ("Task Assigned Successfully".equals(responseMessage)) {
+        response.put("success", true);
+        response.put("message", "Task Assigned Successfully");
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    } else {
+        response.put("success", false);
+        response.put("message", "Error assigning task");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
+}
 	
 	@GetMapping("gettasksassignedby/{id}")
 	public List<Task> gettasksassignedby(@PathVariable("id") int id)
@@ -249,22 +284,38 @@ public class UserController {
     
     
     @PutMapping("/updateuserimage/{id}")
-    public ResponseEntity<String> updateUserImage(@PathVariable("id") int userId, @RequestParam  MultipartFile image) 
-    {
-        try 
-        {
-            // Get image bytes
-            byte[] imageBytes = image.getBytes();
-            
-            // Call UserService to update image
-            String responseMessage = userService.updateUserImage(userId, imageBytes);
-
-            return ResponseEntity.ok(responseMessage);
-        } 
-        catch (Exception e) {
-            return ResponseEntity.status(500).body("Error updating user image: " + e.getMessage());
+public ResponseEntity<byte[]> updateUserImage(
+    @PathVariable("id") int userId,
+    @RequestParam("image") MultipartFile image) {
+ 
+    try {
+        // 1. Get image bytes and content type
+        byte[] imageBytes = image.getBytes();
+        String contentType = image.getContentType();
+ 
+        // 2. Update user image in database (existing logic)
+        userService.updateUserImage(userId, imageBytes);
+ 
+        // 3. Prepare response with dynamic content type
+        HttpHeaders headers = new HttpHeaders();
+        // Set content type from the uploaded file
+        if (contentType != null && contentType.startsWith("image/")) {
+            headers.setContentType(MediaType.parseMediaType(contentType));
+        } else {
+            // Fallback to octet-stream if type detection fails
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
         }
+        headers.setContentLength(imageBytes.length);
+        // 4. Return the image bytes with proper headers
+
+        System.out.println("---" + imageBytes);
+
+        return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
+    } catch (Exception e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+               .body(("Error updating user image: " + e.getMessage()).getBytes());
     }
+}
     
     
     @PostMapping("/addselftask")
