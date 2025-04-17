@@ -220,7 +220,7 @@ export default function MenuBar() {
               position: 'relative', zIndex: 1,
               color: user?.role === ROLES.ADMIN ? 'crimson' : 'yellowgreen'
             } }>
-              { capitalise(user?.role) }
+              { capitalise(user?.role === ROLES.ADMIN ? 'admin' : "employee") }
             </p>
           ) }
 

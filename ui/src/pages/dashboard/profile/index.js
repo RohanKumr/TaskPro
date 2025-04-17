@@ -28,7 +28,7 @@ export default function Profile() {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Basic ' + btoa(`${user?.name}:${user?.password}`)
+        // 'Authorization': 'Basic ' + btoa(`${user?.name}:${user?.password}`)
       },
     })
       .then(res => {
@@ -49,7 +49,7 @@ export default function Profile() {
       .catch(e => {
         // Handle any errors here
         console.error('Error fetching user data:', e);
-        toastError(`An error occurred: ${e.message}`);
+        // toastError(`An error occurred: ${e.message}`);
       });
   }, [user?.id]); // Added user?.id as a dependency for the effect
 
@@ -129,6 +129,12 @@ export default function Profile() {
   // console.log(localStorage.getItem("image"));
 
 
+  const purchaseProHandler = () => {
+    fetch(`${backend_endpoint}/api/payment/checkout`)
+      .then(res => res.text())
+      .then(url => window.location.href = url);
+
+  }
 
 
   return (
@@ -170,6 +176,9 @@ export default function Profile() {
           </InfoItem>
         )) }
       </FlexContainer>
+      <br />
+      <br />
+      <Button onClick={ purchaseProHandler } >Purchase Pro</Button>
     </Container>
   );
 }

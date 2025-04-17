@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { backend_endpoint } from '../../../utils/apis';
 import { toastError, toastSuccess } from '../../../utils/toast';
 import { Table } from '../../../components/table';
+import SearchBar from '../../../components/search-bar/index.js';
 
 
 const DeleteButton = styled.table`
@@ -66,12 +67,42 @@ export default function ViewUsers() {
 
   }
 
+  let debounceTimeout;
+
+  const searchUser = async (e, delay = 500) => {
+    clearTimeout(debounceTimeout);
+
+    debounceTimeout = setTimeout(async () => {
+      try {
+        const res = await fetch(`${backend_endpoint}/searchusers?keyword=${e.target.value}`)
+        const data = await res.json();
+        setAllUsers(data);
+      } catch {
+        toastError("Failed to load users ")
+      }
+    }, delay);
+  };
+
+  // const searchUser = async (e) => {
+  //   try {
+  //     const res = await fetch(`${backend_endpoint}/searchusers?keyword=${e.target.value}`)
+  //     const data = await res.json();
+  //     setAllUsers(data);
+  //   } catch {
+  //     toastError("Failed to load users ")
+  //   }
+  // }
+
   console.log('all users', allUsers);
 
   return (
     <>
-      <h1>All Users</h1>
+
       <div style={ { padding: "20px", overflow: "scroll" } }>
+        <h1>All Users</h1>
+        <br />
+        <SearchBar type="text" onChange={ searchUser } />
+        <br />
         <Table border="1">
           <thead>
             <tr>
