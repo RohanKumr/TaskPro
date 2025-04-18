@@ -20,7 +20,7 @@ const SEO = () => {
       <meta property="og:title" content={ seo.title } />
       <meta property="og:description" content={ seo.description } />
       <meta property="og:type" content="taskpro.com" />
-      <meta name="twitter:card" content="image_comp" />
+      {/* <meta name="twitter:card" content="image_comp" /> */ }
     </Helmet>
   );
 };
