@@ -39,7 +39,7 @@ function Auth({ children }) {
     return children;
   } else if(path === '/') {
     console.log("return to employee dashboard");
-    return <Navigate to="employee/tasks" replace />
+    return <Navigate to="/employee/tasks" replace />
   }
 
   console.log({ path });
