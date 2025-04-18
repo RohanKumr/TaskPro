@@ -79,9 +79,6 @@ export default function Login() {
     setForm(prev => ({ ...prev, role }))
   }
 
-  console.log(form);
-  console.log(errors);
-
   const validate = () => {
     let errorMessages = {};
     const { role, email, password } = form;
@@ -96,15 +93,11 @@ export default function Login() {
   };
 
   const handleSubmit = async (e) => {
-    console.log("Clicked on login");
+
     e.preventDefault();
     setErrors({})
-    console.log("handling Submit");
 
-    console.log({ form });
     if(!validate()) return;
-
-
 
     if(form?.role === ROLES.ADMIN) {
       // login(form);
@@ -124,11 +117,9 @@ export default function Login() {
           body: JSON.stringify(loginBody),
         });
 
-        console.log("Response OK", res.ok);
 
         if(res.ok) {
           const data = await res.json();
-          console.log({ data })
           toastSuccess(data?.message)
           login(data?.admin)
           navigate("/admin/tasks");
@@ -163,11 +154,8 @@ export default function Login() {
           body: JSON.stringify(loginBody),
         });
 
-        console.log("Response OK", res.ok);
-
         if(res.ok) {
           const data = await res.json();
-          console.log({ data });
 
           toastSuccess(data?.message)
           login(data?.user)

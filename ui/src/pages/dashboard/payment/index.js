@@ -1,4 +1,3 @@
-// src/components/CheckoutForm.js
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { ROLES } from '../../../utils/enums';
@@ -8,7 +7,7 @@ const Container = styled.div`
   max-width: 400px;
   margin: 5rem auto;
   padding: 2rem;
-  background-color: #f6f6f6;
+  background-color: white;
   border-radius: 10px;
   box-shadow: 0 4px 20px rgba(0,0,0,0.1);
 `;
@@ -25,6 +24,14 @@ const Label = styled.label`
 `;
 
 const Input = styled.input`
+  width: 100%;
+  padding: 0.7rem;
+  margin-top: 0.3rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+`;
+
+const Select = styled.select`
   width: 100%;
   padding: 0.7rem;
   margin-top: 0.3rem;
@@ -49,23 +56,42 @@ const Button = styled.button`
   }
 `;
 
+const products = [
+  {
+    name: 'Premium Version',
+    amount: 25.99,
+    description: 'Unlock all features, premium support, and lifetime updates.',
+  },
+  {
+    name: 'Standard Version',
+    amount: 14.99,
+    description: 'Access most features with regular updates.',
+  },
+  {
+    name: 'Basic Version',
+    amount: 9.99,
+    description: 'Core features only, great for getting started.',
+  },
+];
+
 const CheckoutForm = () => {
   const { user } = useAuth();
+
   const [form, setForm] = useState({
-    name: 'Premium Version',
-    amount: '25.99',
+    name: products[0].name,
+    amount: products[0].amount,
     quantity: 1,
     currency: 'usd',
     successUrl: `${window.location.origin}${user?.role === ROLES.ADMIN ? '/admin/success' : '/employee/success'}`,
     cancelUrl: `${window.location.origin}${user?.role === ROLES.ADMIN ? '/admin/cancel' : '/employee/cancel'}`,
   });
 
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+  const handleProductChange = (e) => {
+    const selected = products.find((p) => p.name === e.target.value);
     setForm((prev) => ({
       ...prev,
-      [name]: name === 'amount' || name === 'quantity' ? parseFloat(value) : value,
+      name: selected.name,
+      amount: selected.amount,
     }));
   };
 
@@ -86,29 +112,39 @@ const CheckoutForm = () => {
       const data = await res.json();
 
       if(data && data.sessionUrl) {
-        // Redirect to Stripe
         window.location.href = data.sessionUrl;
       } else {
         alert('Something went wrong with Stripe session');
       }
-
     } catch(err) {
       alert('Stripe API Error: ' + err.message);
     }
   };
 
-
   return (
     <Container>
       <Title>Buy Product</Title>
-      <Label>Product Name</Label>
-      <Input name="name" value={ form.name } onChange={ handleChange } disabled />
+
+      <Label>Select Product</Label>
+      <Select value={ form.name } onChange={ handleProductChange }>
+        { products.map((product) => (
+          <option key={ product.name } value={ product.name }>
+            { product.name }
+          </option>
+        )) }
+      </Select>
+
+      { form.name && (
+        <p style={ { marginTop: '0.5rem', fontStyle: 'italic', color: '#555' } }>
+          { products.find((p) => p.name === form.name)?.description }
+        </p>
+      ) }
 
       <Label>Amount (USD)</Label>
-      <Input name="amount" type="number" step="0.01" value={ form.amount } onChange={ handleChange } disabled />
+      <Input name="amount" type="number" step="0.01" value={ form.amount } disabled />
 
       <Label>Quantity</Label>
-      <Input name="quantity" type="number" value={ form.quantity } onChange={ handleChange } disabled />
+      <Input name="quantity" type="number" value={ form.quantity } disabled />
 
       <Button onClick={ handleCheckout }>Pay Now</Button>
     </Container>

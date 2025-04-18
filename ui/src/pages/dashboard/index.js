@@ -1,7 +1,8 @@
 import React from 'react'
 import MainContent from './MainContent';
-import MenuBar from './MenuBar';
+import MenuBar from './side-menu/MenuBar';
 import styled from 'styled-components';
+import SEO from '../../components/seo';
 
 const DashboardContainer = styled.div`
   display:flex;
@@ -16,9 +17,12 @@ const DashboardContainer = styled.div`
 
 export default function Dashboard() {
   return (
-    <DashboardContainer>
-      <MenuBar />
-      <MainContent />
-    </DashboardContainer>
+    <>
+      <SEO />
+      <DashboardContainer>
+        <MenuBar />
+        <MainContent />
+      </DashboardContainer>
+    </>
   )
 }

@@ -17,7 +17,6 @@ const MainContainer = styled.div`
 export default function MainContent() {
   return (
     <MainContainer >
-      {/* <h1>Outlet here</h1> */ }
       <Outlet />
     </MainContainer>
   )

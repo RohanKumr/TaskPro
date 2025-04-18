@@ -41,9 +41,6 @@ export default function ViewUsers() {
         method: "DELETE"
       });
 
-      console.log('Response Status:', res.status); // Logs the HTTP status code
-      console.log('Response OK:', res.ok); // Logs true/false
-
       const result = await res.text();
 
       if(res.ok) {
@@ -82,18 +79,6 @@ export default function ViewUsers() {
       }
     }, delay);
   };
-
-  // const searchUser = async (e) => {
-  //   try {
-  //     const res = await fetch(`${backend_endpoint}/searchusers?keyword=${e.target.value}`)
-  //     const data = await res.json();
-  //     setAllUsers(data);
-  //   } catch {
-  //     toastError("Failed to load users ")
-  //   }
-  // }
-
-  console.log('all users', allUsers);
 
   return (
     <>

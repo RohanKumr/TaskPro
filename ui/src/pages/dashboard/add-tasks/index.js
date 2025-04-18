@@ -7,40 +7,54 @@ import { backend_endpoint } from '../../../utils/apis';
 import { useAuth } from '../../../context/AuthContext';
 import { toastError, toastSuccess } from '../../../utils/toast';
 import { ROLES } from '../../../utils/enums';
+import { COLOR } from '../../../utils/colors';
 
 const TaskContainer = styled.div`
+  padding: 24px;
   h1 {
-    padding-left:16px;
-    font-size:38px;
+    font-size: 32px;
+    font-weight: 600;
+    color: #222;
+    margin-bottom: 24px;
   }
 `;
 
 const TaskForm = styled.form`
+  background: ${COLOR.TERITARY};
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  padding: 32px;
   display: flex;
-  gap: 8px;
-  margin: 30px 0;
+  flex-wrap: wrap;
+  gap: 32px;
   width: 100%;
-  padding: 16px;
-  border-radius: 8px;
-  max-width:100%;
+  max-width: 100%;
 
-  flex-wrap:wrap;
-  gap: 40px;
   > div {
-    width:100%;
-    max-width:40%;
-  }
-  &:last-child {
-    width:auto;
+    flex: 1 1 45%;
+    min-width: 260px;
   }
 
-  @media only screen and (max-width:786px) {
-    gap:16px;
-    >div {
-      max-width:100%;
+  > div:last-child {
+    flex: 1 1 100%;
+    display: flex;
+    justify-content: flex-start;
+  }
+
+  @media (max-width: 768px) {
+    gap: 24px;
+    padding: 24px;
+
+    > div {
+      flex: 1 1 100%;
+    }
+
+    > div:last-child {
+      justify-content: center;
     }
   }
-  `;
+`;
+
 
 
 export default function AddTask() {
@@ -100,7 +114,6 @@ export default function AddTask() {
       });
 
       const rawData = await response.text();
-      console.log("Raw Response:", rawData);
 
       let data;
       try {
@@ -113,7 +126,6 @@ export default function AddTask() {
 
       if(response.ok) {
         toastSuccess('Task Added!');
-        console.log(data);
         // Redirect after success
         if(user?.role === ROLES.ADMIN) navigate('/admin/tasks');
         if(user?.role === ROLES.USER) navigate('/employee/tasks');
@@ -151,7 +163,6 @@ export default function AddTask() {
         console.error(err);
       });
 
-    // setForm((details) => ({ ...details, assignedBy: user?.id }))
   }, []);
 
   return (

@@ -1,73 +1,47 @@
-import React, { useEffect, useState } from 'react'
-import styled from 'styled-components';
-import { COLOR } from '../../../utils/colors';
+import React, { useEffect, useState } from 'react';
 import { backend_endpoint } from '../../../utils/apis';
 import { useAuth } from '../../../context/AuthContext';
 import { Button } from '../../../components/common/button';
-import { faUser } from '@fortawesome/free-solid-svg-icons';
+import { faStar, faUser } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { toastError, toastSuccess } from '../../../utils/toast';
 import { Container, Header, Heading, FlexContainer, InfoItem } from './styles';
 import { ROLES } from '../../../utils/enums';
 import { Link } from 'react-router-dom';
 
-
-
-
 export default function Profile() {
   const { user, login } = useAuth();
-
-
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({});
-  const [userDetails, setUserDetails] = useState({});
+  const [errors, setErrors] = useState({});
   const [image, setImage] = useState(null);
 
-
-  console.log("My Profile", user?.id)
-
   useEffect(() => {
-    fetch(`${backend_endpoint}/getuserbyid/${user?.id}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        // 'Authorization': 'Basic ' + btoa(`${user?.name}:${user?.password}`)
-      },
-    })
+    fetch(`${backend_endpoint}/getuserbyid/${user?.id}`)
       .then(res => {
-        if(!res.ok) {
-          // If the response is not OK, throw an error
-          throw new Error(`Error: ${res.status} - ${res.statusText}`);
-        }
+        if(!res.ok) throw new Error(`Error: ${res.status} - ${res.statusText}`);
         return res.json();
       })
       .then(data => {
         if(data.length !== 0) {
           login(data);
-          // localStorage.setItem("user", JSON.stringify(data));
         } else {
           toastError('User not found');
         }
       })
-      .catch(e => {
-        // Handle any errors here
-        console.error('Error fetching user data:', e);
-        // toastError(`An error occurred: ${e.message}`);
-      });
-  }, [user?.id]); // Added user?.id as a dependency for the effect
-
+      .catch(e => console.error('Error fetching user data:', e));
+  }, [user?.id]);
 
   useEffect(() => {
     if(user) {
       setFormData({
-        name: user.name,
-        // role: user.role,
-        department: user.department,
-        contact: user.contact,
-        email: user.email,
-        gender: user.gender,
+        name: user.name || '',
+        department: user.department || '',
+        contact: user.contact || '',
+        email: user.email || '',
+        gender: user.gender || '',
         id: user.id,
-        password: user.password
+        password: user.password || ''
       });
     }
   }, [user]);
@@ -77,28 +51,42 @@ export default function Profile() {
       ...prev,
       [e.target.name]: e.target.value
     }));
+    setErrors(prev => ({ ...prev, [e.target.name]: '' })); // clear error on change
   };
 
   const handleImageChange = (e) => {
     setImage(e.target.files[0]);
   };
 
+  const validateForm = () => {
+    const newErrors = {};
+    if(!formData.name) newErrors.name = "Name is required.";
+    if(!formData.email) {
+      newErrors.email = "Email is required.";
+    } else if(!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = "Email is invalid.";
+    }
+    if(!formData.contact) newErrors.contact = "Contact is required.";
+    if(!formData.password) newErrors.password = "Password is required.";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSave = async () => {
+    if(!validateForm()) {
+      toastError("Please fix the validation errors.");
+      return;
+    }
+
     try {
-      // 1. Update user details (excluding image)
       const res1 = await fetch(`${backend_endpoint}/updateuser`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       });
 
-      if(!res1.ok) {
-        throw new Error('Failed to update user details');
-      }
+      if(!res1.ok) throw new Error('Failed to update user details');
 
-      // 2. Update image if available
       if(image && formData.id) {
         const imgFormData = new FormData();
         imgFormData.append('image', image);
@@ -108,17 +96,7 @@ export default function Profile() {
           body: imgFormData
         });
 
-        // const updatedImageUrl = await res2.text();
-        // console.log("Updated Image URL:", updatedImageUrl);
-
-
-
-        // localStorage.setItem("image", JSON.stringify(updatedImageUrl));
-
-
-        if(!res2.ok) {
-          throw new Error('Failed to update image');
-        }
+        if(!res2.ok) throw new Error('Failed to update image');
       }
 
       toastSuccess('User updated successfully');
@@ -129,17 +107,6 @@ export default function Profile() {
     }
   };
 
-  // console.log(localStorage.getItem("image"));
-
-
-  const purchaseProHandler = () => {
-    // fetch(`${backend_endpoint}/api/payment/checkout`)
-    //   .then(res => res.text())
-    //   .then(url => window.location.href = url);
-
-  }
-
-
   return (
     <Container>
       <Heading>{ user?.name ? "Welcome, " + user?.name : "My Profile" }</Heading>
@@ -149,7 +116,7 @@ export default function Profile() {
         <div className="left">
           <div className="image">
             { image ? (
-              <img src={ URL.createObjectURL(image || localStorage.getItem("image")) } alt="User" />
+              <img src={ URL.createObjectURL(image) } alt="User" />
             ) : (
               <FontAwesomeIcon icon={ faUser } />
             ) }
@@ -162,26 +129,52 @@ export default function Profile() {
             ) }
           </div>
         </div>
-        <Button onClick={ () => isEditing ? handleSave() : setIsEditing(true) } style={ { height: "fit-content" } }>
-          { isEditing ? "Save" : "Edit" }
-        </Button>
+        <FlexContainer>
+          <Link to={ `${user?.role === ROLES.ADMIN ? '/admin/checkout' : '/employee/checkout'}` }>
+            <Button style={ { display: 'flex', gap: '16px' } }>
+              <FontAwesomeIcon icon={ faStar } /> <p> Purchase Pro</p>
+            </Button>
+          </Link>
+        </FlexContainer>
       </Header>
 
       <FlexContainer>
-        { Object.entries(formData).filter(([key]) => key !== "role").map(([key, value]) => (
-          <InfoItem key={ key }>
-            <strong>{ key.charAt(0).toUpperCase() + key.slice(1) }:</strong>
-            { isEditing ? (
-              <input name={ key } value={ value || '' } onChange={ handleInputChange } />
-            ) : (
-              value || '-'
-            ) }
-          </InfoItem>
-        )) }
+        { Object.entries(formData)
+          .filter(([key]) => key !== "role")
+          .map(([key, value]) => (
+            <InfoItem key={ key }>
+              <strong>{ key.charAt(0).toUpperCase() + key.slice(1) }:</strong>
+              { isEditing ? (
+                <div>
+                  <input
+                    type={ key === "password" ? "password" : "text" }
+                    name={ key }
+                    value={ value }
+                    onChange={ handleInputChange }
+                  />
+                  { errors[key] && (
+                    <div className="error">{ errors[key] }</div>
+                  ) }
+
+                </div>
+              ) : (
+                key === "password" ? "••••••••" : value || '-'
+              ) }
+            </InfoItem>
+          )) }
       </FlexContainer>
+
       <br />
       <br />
-      <Link to={ `${user?.role === ROLES.ADMIN ? '/admin/checkout' : '/employee/checkout'}` } >Purchase Pro</Link>
+
+      { isEditing && <Button onClick={ () => setIsEditing(false) } style={ { marginRight: "16px" } }>
+        Cancel
+      </Button> }
+
+      <Button onClick={ () => isEditing ? handleSave() : setIsEditing(true) } style={ { height: "fit-content" } }>
+        { isEditing ? "Save" : "Edit" }
+      </Button>
+
     </Container>
   );
 }
