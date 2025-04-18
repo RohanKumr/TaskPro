@@ -8,6 +8,9 @@ import { faUser } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { toastError, toastSuccess } from '../../../utils/toast';
 import { Container, Header, Heading, FlexContainer, InfoItem } from './styles';
+import { ROLES } from '../../../utils/enums';
+import { Link } from 'react-router-dom';
+
 
 
 
@@ -130,9 +133,9 @@ export default function Profile() {
 
 
   const purchaseProHandler = () => {
-    fetch(`${backend_endpoint}/api/payment/checkout`)
-      .then(res => res.text())
-      .then(url => window.location.href = url);
+    // fetch(`${backend_endpoint}/api/payment/checkout`)
+    //   .then(res => res.text())
+    //   .then(url => window.location.href = url);
 
   }
 
@@ -178,7 +181,7 @@ export default function Profile() {
       </FlexContainer>
       <br />
       <br />
-      <Button onClick={ purchaseProHandler } >Purchase Pro</Button>
+      <Link to={ `${user?.role === ROLES.ADMIN ? '/admin/checkout' : '/employee/checkout'}` } >Purchase Pro</Link>
     </Container>
   );
 }

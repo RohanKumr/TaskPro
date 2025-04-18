@@ -157,7 +157,6 @@ export default function MenuBar() {
         to: '/admin/profile',
         name: 'My Profile',
         icon: faUser,
-
       },
     ],
     [ROLES.USER]: [

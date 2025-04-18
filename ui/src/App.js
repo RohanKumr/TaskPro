@@ -13,6 +13,9 @@ import Restricted from './pages/dashboard/restricted/index.js';
 import { ToastContainer } from 'react-toastify';
 import Profile from './pages/dashboard/profile/index.js';
 import TaskDetails from './pages/dashboard/task-details/index.js';
+import CheckoutForm from './pages/dashboard/payment/index.js';
+import SuccessPage from './pages/dashboard/payment/success';
+import ErrorPage from './pages/dashboard/payment/cancel.js';
 import { ROLES } from './utils/enums.js';
 
 
@@ -62,6 +65,9 @@ function App() {
             <Route path="admin/tasks" element={ <Tasks /> } />
             <Route path="admin/profile" element={ <Profile /> } />
             <Route path="admin/task/:id" element={ <TaskDetails /> } />
+            <Route path="admin/checkout" element={ <CheckoutForm /> } />
+            <Route path="admin/success" element={ <SuccessPage /> } />
+            <Route path="admin/cancel" element={ <ErrorPage /> } />
 
 
             {/* EMPLOYEE Routes */ }
@@ -70,6 +76,9 @@ function App() {
             <Route path="employee/tasks" element={ <Tasks /> } />
             <Route path="employee/task/:id" element={ <TaskDetails /> } />
             <Route path="employee/add-task" element={ <AddTasks /> } />
+            <Route path="/employee/checkout" element={ <CheckoutForm /> } />
+            <Route path="/employee/success" element={ <SuccessPage /> } />
+            <Route path="/employee/cancel" element={ <ErrorPage /> } />
           </Route>
           <Route path="/login" element={ <Login /> } />
           <Route path="/restricted" element={ <Restricted /> } />

@@ -29,6 +29,7 @@ nbdist/
 
 # Logs and misc
 .DS_Store
+.env
 
 # Editor
 .vscode/
