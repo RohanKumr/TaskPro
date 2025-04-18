@@ -1,14 +1,13 @@
-# Use Java 17 base image
 FROM openjdk:17-jdk-slim
 
 # Set working directory
 WORKDIR /app
 
-# Copy the built jar into the container
-COPY build/libs/*.jar app.jar
+# Copy the Maven-built jar from target/
+COPY target/*.jar app.jar
 
-# Expose the port your app runs on
+# Expose the port (Render will override this with $PORT)
 EXPOSE 8080
 
-# Run the app
-CMD ["java", "-jar", "app.jar"]
+# Run the jar
+ENTRYPOINT ["java", "-jar", "app.jar"]
