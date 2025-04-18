@@ -5,12 +5,22 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 
 const Container = styled.div`
-  display: flex;
+   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 100vh;
-  text-align: center;
+  text-align: center; 
+  
+
+`;
+const MessageContainer = styled.div`
+  display:grid;
+  place-items:center;
+  background:white;
+  padding:46px 24px;
+  border-radius:10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 `;
 
 const Icon = styled(FontAwesomeIcon)`
@@ -32,9 +42,11 @@ const Subtext = styled.p`
 const SuccessPage = () => {
   return (
     <Container>
-      <Icon icon={ faCheckCircle } />
-      <Message>Payment Successful!</Message>
-      <Subtext>Thank you for your purchase. Your order has been placed.</Subtext>
+      <MessageContainer>
+        <Icon icon={ faCheckCircle } />
+        <Message>Payment Successful!</Message>
+        <Subtext>Thank you for your purchase. Your order has been placed.</Subtext>
+      </MessageContainer>
     </Container>
   );
 };
